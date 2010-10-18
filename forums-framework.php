@@ -1,15 +1,16 @@
 <?php
 /*
-Plugin Name: Forums
-Plugin URI: 
-Description:
-Author: Andrew Billits
-Version: 1.6.2
-Author URI:
-WDP ID: 26
+ * Plugin Name: Forums
+ * Plugin URI: http://premium.wpmudev.org/project/forums
+ * Description: Allows each blog to have their very own forums - embedded in any page or post.
+ * Author: Andrew Billits & Ulrich Sossou (Incsub)
+ * Author URI:
+ * Version: 1.6.3
+ * Text Domain: wpmudev_forums
+ * WDP ID: 26
 */
 
-/* 
+/*
 Copyright 2007-2009 Incsub (http://incsub.com)
 
 This program is free software; you can redistribute it and/or modify
@@ -36,10 +37,16 @@ $forums_max_forums = 1; //The maximum number of forums per blog - Max 25
 $forums_upgrades_forums = 10; //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
 $forums_enable_upgrades = '0'; //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
 
+if ( defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
+	load_muplugin_textdomain( 'wpmudev_forums', 'forums-files/languages' );
+} else {
+	load_plugin_textdomain( 'wpmudev_forums', false, dirname( plugin_basename( __FILE__ ) ) . '/forums-files/languages' );
+}
+
 function forums_upgrades_advertise(){
 global $forums_max_forums;
 ?>
-<p><strong>Visit the upgrades tab to get more forums. Currently you are limit to <?php echo $forums_max_forums; ?></strong></p>
+<p><strong><?php printf( __( 'Visit the upgrades tab to get more forums. Currently you are limit to %s', 'wpmudev_forums' ), $forums_max_forums ); ?></strong></p>
 <?php
 }
 
@@ -47,7 +54,7 @@ global $forums_max_forums;
 //---Hook-----------------------------------------------------------------//
 //------------------------------------------------------------------------//
 //check for activating
-if ($_GET['key'] == '' || $_GET['key'] === ''){
+if ( empty( $_GET['key'] ) ){
 	add_action('admin_head', 'forums_make_current');
 }
 //if ($wpdb->blogid == 2){
@@ -59,8 +66,8 @@ add_filter('the_excerpt', 'forums_output', 20);
 //--------------------------------Premium---------------------------------//
 if ($forums_enable_upgrades == '1'){
 	//register premium features
-	upgrades_register_feature('68daf8bdc8755fe8f4859024b3054fb8', 'Forums', 'Additional Forums');
-	
+	upgrades_register_feature( '68daf8bdc8755fe8f4859024b3054fb8', __( 'Forums', 'wpmudev_forums' ), __( 'Additional Forums', 'wpmudev_forums' ) );
+
 	//load premium features
 	if (upgrades_active_feature('68daf8bdc8755fe8f4859024b3054fb8') == 'active'){
 		$forums_max_forums = $forums_upgrades_forums;
@@ -76,7 +83,7 @@ function forums_make_current() {
 		if (get_site_option( "forums_version" ) == '') {
 			add_site_option( 'forums_version', '0.0.0' );
 		}
-		
+
 		if (get_site_option( "forums_version" ) == $forums_current_version) {
 			// do nothing
 		} else {
@@ -90,7 +97,7 @@ function forums_make_current() {
 		if (get_option( "forums_version" ) == '') {
 			add_option( 'forums_version', '0.0.0' );
 		}
-		
+
 		if (get_option( "forums_version" ) == $forums_current_version) {
 			// do nothing
 		} else {
@@ -111,11 +118,11 @@ function forums_blog_install() {
 	if (get_option( "forums_installed" ) == '') {
 		add_option( 'forums_installed', 'no' );
 	}
-	
+
 	if (get_option( "forums_installed" ) == "yes") {
 		// do nothing
 	} else {
-	
+
 		$forums_table1 = "CREATE TABLE `" . $db_prefix . "forums` (
   `forum_ID` bigint(20) unsigned NOT NULL auto_increment,
   `forum_blog_ID` bigint(20) NOT NULL,
@@ -175,11 +182,11 @@ function forums_global_install() {
 	if (get_site_option( "forums_installed" ) == '') {
 		add_site_option( 'forums_installed', 'no' );
 	}
-	
+
 	if (get_site_option( "forums_installed" ) == "yes") {
 		// do nothing
 	} else {
-	
+
 		$forums_table1 = "CREATE TABLE `" . $db_prefix . "forums` (
   `forum_ID` bigint(20) unsigned NOT NULL auto_increment,
   `forum_blog_ID` bigint(20) NOT NULL,
@@ -230,7 +237,7 @@ function forums_global_install() {
 }
 
 function forums_plug_pages() {
-	add_menu_page(__('Forums'), __('Forums'), 10, 'forums.php');
+	add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'forums.php');
 }
 
 function forums_admin_bar( $menu ) {
@@ -295,12 +302,12 @@ function forums_output($content) {
 					//we're good
 				} else {
 					$tmp_errors = $tmp_errors + 1;
-					$tmp_error_msg = 'Invalid user account...';
+					$tmp_error_msg = __( 'Invalid user account...', 'wpmudev_forums' );
 				}
 				//check for invalid forum ID
 				if ($_POST['fid'] != $tmp_fid){
 					$tmp_errors = $tmp_errors + 1;
-					$tmp_error_msg = 'Invalid forum...';
+					$tmp_error_msg = __( 'Invalid forum...', 'wpmudev_forums' );
 				}
 				if ($tmp_errors > 0){
 					$content = forums_output_new_topic($tmp_fid,$tmp_errors,$tmp_error_msg);
@@ -312,7 +319,7 @@ function forums_output($content) {
 						forums_topic_count_posts($tmp_tid);
 						forums_forum_count_posts($tmp_fid);
 						forums_forum_count_topics($tmp_fid);
-						$content = $content . '<p><center>' . _('Topic Added!') . '</center></p>';
+						$content = $content . '<p><center>' . __( 'Topic Added!', 'wpmudev_forums' ) . '</center></p>';
 						$content = $content . forums_output_search_form($tmp_fid);
 						$content = $content . '<br />';
 						$content = $content . forums_output_forum_nav($tmp_fid);
@@ -332,17 +339,17 @@ function forums_output($content) {
 					if ($_GET['action'] == 'close_topic'){
 						if(current_user_can('manage_options')) {
 							$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_closed = '1' WHERE topic_ID = '" . $_GET['topic'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
-							$tmp_msg = 'Topic Closed!';
+							$tmp_msg = __( 'Topic Closed!', 'wpmudev_forums' );
 						} else {
-							$tmp_msg = 'Permission denied...';
+							$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 						}
 					}
 					if ($_GET['action'] == 'open_topic'){
 						if(current_user_can('manage_options')) {
 							$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_closed = '0' WHERE topic_ID = '" . $_GET['topic'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
-							$tmp_msg = 'Topic Opened!';
+							$tmp_msg = __( 'Topic Opened!', 'wpmudev_forums' );
 						} else {
-							$tmp_msg = 'Permission denied...';
+							$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 						}
 					}
 					$tmp_topic_title = $wpdb->get_var("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
@@ -350,12 +357,12 @@ function forums_output($content) {
 					$tmp_topic_last_author = $wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
 					$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
 					if ($tmp_topic_closed == 1){
-						$content = $content . '<h3>' . $tmp_topic_title . ' (' . __('Closed') . ')</h3>';					
+						$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 					} else {
 						$content = $content . '<h3>' . $tmp_topic_title . '</h3>';
 					}
 					if ($tmp_msg != ''){
-					$content = $content . '<p><center>' . __($tmp_msg) . '</center></p>';
+					$content = $content . '<p><center>' . $tmp_msg . '</center></p>';
 					}
 					if ($_GET['msg'] != ''){
 					$content = $content . '<p><center>' . __(urldecode($_GET['msg'])) . '</center></p>';
@@ -363,16 +370,16 @@ function forums_output($content) {
 					$content = $content . '<br />';
 					$content = $content . '<hr />';
 					$content = $content . '<ul>';
-					$content = $content . '<li>' . __('Last updated: ') . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
-					$content = $content . '<li>' . __('Latest Reply From: ') . forums_author_display_name($tmp_topic_last_author) . '</li>';
+					$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
+					$content = $content . '<li>' . __( 'Latest Reply From: ', 'wpmudev_forums' ) . forums_author_display_name($tmp_topic_last_author) . '</li>';
 					$content = $content . '</ul>';
 					$content = $content . '<hr />';
 					if(current_user_can('manage_options')) {
-						$content = $content . '<center><a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __('Delete Topic') . '</a> | ';
+						$content = $content . '<center><a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
 						if ($tmp_topic_closed == 1){
-							$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=open_topic">' . __('Open Topic') . '</a>';
+							$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=open_topic">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
 						} else {
-							$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=close_topic">' . __('Close Topic') . '</a>';
+							$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=close_topic">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
 						}
 						$content = $content . '</center>';
 						$content = $content . '<hr />';
@@ -385,76 +392,76 @@ function forums_output($content) {
 					$content = $content . '<br />';
 					$content = $content . forums_output_new_post($tmp_fid,$_GET['topic'],0,'');
 				} else {
-					$content = $content . '<p><center>' . __('Invalid topic...') . '</center></p>';	
+					$content = $content . '<p><center>' . __( 'Invalid topic...', 'wpmudev_forums' ) . '</center></p>';
 				}
 			} else if ($_GET['action'] == 'delete_topic'){
 				$tmp_topic_count = 0;
 				$tmp_forum_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 				if ($tmp_forum_count > 0){
-					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");	
+					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
 				}
 				if ($tmp_topic_count > 0){
 					if(current_user_can('manage_options')) {
 						$content = $content . forums_output_delete_topic($tmp_fid,$_GET['tid']);
 					} else {
-						$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+						$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 					}
 				} else {
-						$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+						$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 				}
 			} else if ($_GET['action'] == 'delete_topic_process'){
 				$tmp_topic_count = 0;
 				$tmp_forum_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 				if ($tmp_forum_count > 0){
-					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");	
+					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
 				}
 				if ($tmp_topic_count > 0){
 					if ( isset($_POST['Cancel']) ) {
 						if ($_GET['action'] == 'close_topic'){
 							if(current_user_can('manage_options')) {
 								$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_closed = '1' WHERE topic_ID = '" . $_GET['topic'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
-								$tmp_msg = 'Topic Closed!';
+								$tmp_msg = __( 'Topic Closed!', 'wpmudev_forums' );
 							} else {
-								$tmp_msg = 'Permission denied...';
+								$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 							}
 						}
 						if ($_GET['action'] == 'open_topic'){
 							if(current_user_can('manage_options')) {
 								$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_closed = '0' WHERE topic_ID = '" . $_GET['topic'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
-								$tmp_msg = 'Topic Opened!';
+								$tmp_msg = __( 'Topic Opened!', 'wpmudev_forums' );
 							} else {
-								$tmp_msg = 'Permission denied...';
+								$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 							}
 						}
 						$tmp_topic_title = $wpdb->get_var("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 						$tmp_topic_last_updated = $wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 						$tmp_topic_last_author = $wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 						$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-						
+
 						if ($tmp_topic_closed == 1){
-							$content = $content . '<h3>' . $tmp_topic_title . ' (' . __('Closed') . ')</h3>';					
+							$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 						} else {
 							$content = $content . '<h3>' . $tmp_topic_title . '</h3>';
 						}
 						if ($tmp_msg != ''){
-						$content = $content . '<p><center>' . __($tmp_msg) . '</center></p>';
+						$content = $content . '<p><center>' . $tmp_msg . '</center></p>';
 						}
 						if ($_GET['msg'] != ''){
-						$content = $content . '<p><center>' . __(urldecode($_GET['msg'])) . '</center></p>';
+						$content = $content . '<p><center>' . urldecode( $_GET['msg'] ) . '</center></p>';
 						}
 						$content = $content . '<br />';
 						$content = $content . '<hr />';
 						$content = $content . '<ul>';
-						$content = $content . '<li>' . __('Last updated: ') . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
-						$content = $content . '<li>' . __('Latest Reply From: ') . forums_author_display_name($tmp_topic_last_author) . '</li>';
+						$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
+						$content = $content . '<li>' . __( 'Latest Reply From: ', 'wpmudev_forums' ) . forums_author_display_name($tmp_topic_last_author) . '</li>';
 						$content = $content . '</ul>';
 						$content = $content . '<hr />';
 						if(current_user_can('manage_options')) {
-							$content = $content . '<center><a href="?action=delete_topic&tid=' . $_POST['tid'] . '">' . __('Delete Topic') . '</a> | ';
+							$content = $content . '<center><a href="?action=delete_topic&tid=' . $_POST['tid'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
 							if ($tmp_topic_closed == 1){
-								$content = $content . '<a href="?topic=' . $_POST['tid'] . '&action=open_topic">' . __('Open Topic') . '</a>';
+								$content = $content . '<a href="?topic=' . $_POST['tid'] . '&action=open_topic">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
 							} else {
-								$content = $content . '<a href="?topic=' . $_POST['tid'] . '&action=close_topic">' . __('Close Topic') . '</a>';
+								$content = $content . '<a href="?topic=' . $_POST['tid'] . '&action=close_topic">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
 							}
 							$content = $content . '</center>';
 							$content = $content . '<hr />';
@@ -473,49 +480,49 @@ function forums_output($content) {
 								if ($_GET['action'] == 'close_topic'){
 									if(current_user_can('manage_options')) {
 										$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_closed = '1' WHERE topic_ID = '" . $_GET['topic'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
-										$tmp_msg = 'Topic Closed!';
+										$tmp_msg = __( 'Topic Closed!', 'wpmudev_forums' );
 									} else {
-										$tmp_msg = 'Permission denied...';
+										$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 									}
 								}
 								if ($_GET['action'] == 'open_topic'){
 									if(current_user_can('manage_options')) {
 										$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_closed = '0' WHERE topic_ID = '" . $_GET['topic'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
-										$tmp_msg = 'Topic Opened!';
+										$tmp_msg = __( 'Topic Opened!', 'wpmudev_forums' );
 									} else {
-										$tmp_msg = 'Permission denied...';
+										$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 									}
 								}
 								$tmp_topic_title = $wpdb->get_var("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 								$tmp_topic_last_updated = $wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 								$tmp_topic_last_author = $wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 								$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
-								
+
 								if ($tmp_topic_closed == 1){
-									$content = $content . '<h3>' . $tmp_topic_title . ' (' . __('Closed') . ')</h3>';					
+									$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 								} else {
 									$content = $content . '<h3>' . $tmp_topic_title . '</h3>';
 								}
 								if ($tmp_msg != ''){
-								$content = $content . '<p><center>' . __($tmp_msg) . '</center></p>';
+								$content = $content . '<p><center>' . $tmp_msg . '</center></p>';
 								}
 								if ($_GET['msg'] != ''){
-								$content = $content . '<p><center>' . __(urldecode($_GET['msg'])) . '</center></p>';
+								$content = $content . '<p><center>' . urldecode( $_GET['msg'] ) . '</center></p>';
 								}
-								$content = $content . '<p><center>' . __('Error deleting topic...') . '</center></p>';
+								$content = $content . '<p><center>' . __( 'Error deleting topic...', 'wpmudev_forums' ) . '</center></p>';
 								$content = $content . '<br />';
 								$content = $content . '<hr />';
 								$content = $content . '<ul>';
-								$content = $content . '<li>' . __('Last updated: ') . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
-								$content = $content . '<li>' . __('Latest Reply From: ') . forums_author_display_name($tmp_topic_last_author) . '</li>';
+								$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
+								$content = $content . '<li>' . __( 'Latest Reply From: ', 'wpmudev_forums' ) . forums_author_display_name($tmp_topic_last_author) . '</li>';
 								$content = $content . '</ul>';
 								$content = $content . '<hr />';
 								if(current_user_can('manage_options')) {
-									$content = $content . '<center><a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __('Delete Topic') . '</a> | ';
+									$content = $content . '<center><a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
 									if ($tmp_topic_closed == 1){
-										$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=open_topic">' . __('Open Topic') . '</a>';
+										$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=open_topic">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
 									} else {
-										$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=close_topic">' . __('Close Topic') . '</a>';
+										$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=close_topic">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
 									}
 									$content = $content . '</center>';
 									$content = $content . '<hr />';
@@ -530,7 +537,7 @@ function forums_output($content) {
 							} else {
 								forums_forum_count_posts($tmp_fid);
 								forums_forum_count_topics($tmp_fid);
-								$content = $content . '<p><center>' . _('Topic Deleted!') . '</center></p>';
+								$content = $content . '<p><center>' . __( 'Topic Deleted!', 'wpmudev_forums' ) . '</center></p>';
 								$content = $content . forums_output_search_form($tmp_fid);
 								$content = $content . '<br />';
 								$content = $content . forums_output_forum_nav($tmp_fid);
@@ -540,30 +547,30 @@ function forums_output($content) {
 								$content = $content . forums_output_forum_nav($tmp_fid);
 							}
 						} else {
-							$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+							$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 						}
 					}
 				} else {
-					$content = $content . '<p><center>' . _('Invalid Topic!') . '</center></p>';
+					$content = $content . '<p><center>' . __( 'Invalid Topic!', 'wpmudev_forums' ) . '</center></p>';
 				}
 			} else if ($_GET['action'] == 'delete_post'){
 				$tmp_topic_count = 0;
 				$tmp_post_count = 0;
 				$tmp_forum_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 				if ($tmp_forum_count > 0){
-					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");	
+					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
 				}
 				if ($tmp_topic_count > 0){
-					$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");	
+					$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 				}
 				if ($tmp_post_count > 0){
 					if(current_user_can('manage_options')) {
 						$content = $content . forums_output_delete_post($_GET['pid'],$_GET['tid'],$_GET['page']);
 					} else {
-						$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+						$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 					}
 				} else {
-						$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+						$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 				}
 			} else if ($_GET['action'] == 'delete_post_process'){
 				if ( isset($_POST['Cancel']) ) {
@@ -574,41 +581,41 @@ function forums_output($content) {
 					$tmp_errors = forums_output_delete_post_process($tmp_fid,$_POST['pid'],$_POST['tid']);
 					if ($tmp_errors > 0){
 						$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-						$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode(__('Error deleting post')) . '#post-' . $_POST['pid'] . '";';
+						$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __('Error deleting post', 'wpmudev_forums' ) ) . '#post-' . $_POST['pid'] . '";';
 						$content = $content . '</script>';
 					} else {
 						$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-						$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&msg=' . urlencode(__('Post deleted')) . '";';
+						$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&msg=' . urlencode( __( 'Post deleted', 'wpmudev_forums' ) ) . '";';
 						$content = $content . '</script>';
 					}
 				}
-					
+
 			} else if ($_GET['action'] == 'edit_post'){
 				$tmp_topic_count = 0;
 				$tmp_post_count = 0;
 				$tmp_forum_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 				if ($tmp_forum_count > 0){
-					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");	
+					$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['tid'] . "' AND topic_forum_ID = '" . $tmp_fid . "'");
 				}
 				if ($tmp_topic_count > 0){
-					$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");	
+					$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 				}
 				if ($tmp_post_count > 0){
 					if(current_user_can('manage_options')) {
 						//yep
 						$content = $content . forums_output_edit_post($tmp_pid,$tmp_fid,$_GET['tid'],0,'',$_GET['page']);
 					} else {
-						$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");	
+						$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 						if ($tmp_post_auhtor == $user_ID){
 							//yep
 							$content = $content . forums_output_edit_post($_GET['pid'],$tmp_fid,$_GET['tid'],0,'',$_GET['page']);
 						} else {
 							//nope
-							$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+							$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 						}
 					}
 				} else {
-						$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+						$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 				}
 			} else if ($_GET['action'] == 'edit_post_process'){
 				if ( isset($_POST['Cancel']) ) {
@@ -623,26 +630,26 @@ function forums_output($content) {
 						if(current_user_can('manage_options')) {
 							forums_output_edit_post_process($tmp_fid,$_POST['pid'],$_POST['tid']);
 							$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-							$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode(__('Post updated...')) . '";';
-							
-							$content = $content . '</script>';					
+							$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
+
+							$content = $content . '</script>';
 						} else {
-							$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");	
+							$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 							if ($tmp_post_auhtor == $user_ID){
 								forums_output_edit_post_process($tmp_fid,$_POST['pid'],$_POST['tid']);
 								$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-								$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode(__('Post updated...')) . '";';
-							
+								$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
+
 								$content = $content . '</script>';
 							} else {
-								$content = $content . '<p><center>' . __('Permission denied...') . '</center></p>';	
+								$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 							}
 						}
 					}
 				}
 			} else if ($_GET['action'] == 'new_post_process'){
 				if ($user_ID == '' || $user_ID == '0'){
-					$content = $content . '<p><center>' . _('You must be a registered and logged in user of this blog to post on this forum.') . '</center></p>';
+					$content = $content . '<p><center>' . __( 'You must be a registered and logged in user of this blog to post on this forum.', 'wpmudev_forums' ) . '</center></p>';
 				} else {
 					$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 					if ($tmp_topic_closed != '1'){
@@ -653,7 +660,7 @@ function forums_output($content) {
 							$tmp_total_pages = forums_roundup($tmp_post_count / $forums_posts_per_page, 0);
 							forums_output_new_post_process($tmp_fid,$_POST['tid']);
 							$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-							$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $tmp_total_pages . '&msg=' . urlencode(__('Post added...')) . '";';
+							$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $tmp_total_pages . '&msg=' . urlencode( __( 'Post added...', 'wpmudev_forums' ) ) . '";';
 							$content = $content . '</script>';
 						}
 					}
@@ -669,7 +676,7 @@ function forums_output($content) {
 			} else {
 				//Display Forum
 				$content = $content . forums_output_search_form($tmp_fid);
-				$content = $content . '<br />';	
+				$content = $content . '<br />';
 				$content = $content . forums_output_forum_nav($tmp_fid);
 				$content = $content . '<br />';
 				$content = $content . forums_output_forum($tmp_fid);
@@ -677,7 +684,7 @@ function forums_output($content) {
 				$content = $content . forums_output_forum_nav($tmp_fid);
 			}
 		} else {
-			$content = 'Invalid Forum Code';
+			$content = __( 'Invalid Forum Code', 'wpmudev_forums' );
 		}
 		//insert/post content
 		$original_content = str_replace('[forum:' . $tmp_fid . ']','',$original_content);
@@ -710,11 +717,11 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 	$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: #' . $tmp_forum_color_border . ';"';
 
-	$content = $content . '<h3>' . _('Search Results') . '</h3>';
+	$content = $content . '<h3>' . __( 'Search Results', 'wpmudev_forums' ) . '</h3>';
 	$content = $content . forums_output_search_form($tmp_fid);
 	$content = $content . '<br />';
-	$content = $content . '<h3>' . _('Posts:') . '</h3>';
-	
+	$content = $content . '<h3>' . __( 'Posts:', 'wpmudev_forums' ) . '</h3>';
+
 	$query = "SELECT * FROM " . $db_prefix . "forums_posts WHERE post_forum_ID = '" . $tmp_fid . "' AND post_content LIKE '%" . $tmp_query . "%'";
 	$query = $query . " ORDER BY post_ID ASC";
 	$query = $query . " LIMIT 25";
@@ -748,9 +755,9 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 		}
 		$content = $content . '</table>';
 	} else {
-		$content =  $content . '<p><center>' . __('No matches...') . '</center></p>';
+		$content =  $content . '<p><center>' . __( 'No matches...', 'wpmudev_forums' ) . '</center></p>';
 	}
-	
+
 	return $content;
 }
 
@@ -763,13 +770,13 @@ function forums_output_search_form($tmp_fid){
 	}
 
 	$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_forum_ID = '" . $tmp_fid . "'");
-	
+
 	$tmp_query = '';
 	$tmp_query = $_POST['search'];
 	if ($tmp_query == ''){
 		$tmp_query = $_GET['search'];
 	}
-	
+
 	if ($tmp_topic_count > 0){
 		$content = $content . '<p><center>';
 		$content = $content . '<form name="new_t" method="POST" action="?search=">';
@@ -777,7 +784,7 @@ function forums_output_search_form($tmp_fid){
 		$content = $content . '<input type="hidden" name="fid" value="' . $tmp_fid . '" />';
 		$content = $content . '<input type="hidden" name="query" value="' . $tmp_query . '" />';
 		$content = $content . '<input type="text" name="search" id="search" style="width: 25%;" value="' . $tmp_query . '"/>';
-		$content = $content . '<input type="submit" name="Submit" value="' . __('Search &raquo;') . '" />';
+		$content = $content . '<input type="submit" name="Submit" value="' . __( 'Search', 'wpmudev_forums' ) . ' &raquo;" />';
 		$content = $content . '</form>';
 		$content = $content . '</center></p>';
 	} else {
@@ -797,11 +804,11 @@ function forums_output_new_post_process($tmp_fid,$tmp_tid) {
 	$wpdb->query( "INSERT INTO " . $db_prefix . "forums_posts (post_forum_ID, post_topic_ID, post_author, post_content, post_stamp) VALUES ( '" . $tmp_fid . "', '" . $tmp_tid . "', '" . $user_ID . "', '" . forums_save_post_content($_POST['post_content']) . "', '" . time() . "')" );
 	$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_last_author = '" . $user_ID . "' WHERE topic_ID = '" . $tmp_tid . "'" );
 	$wpdb->query( "UPDATE " . $db_prefix . "forums_topics SET topic_last_updated_stamp = '" . time(). "' WHERE topic_ID = '" . $tmp_tid . "'" );
-	
+
 	forums_topic_count_posts($tmp_tid);
 	forums_forum_count_posts($tmp_fid);
 	forums_forum_count_topics($tmp_fid);
-	
+
 }
 
 function forums_output_new_post_separate($tmp_fid,$tmp_tid,$tmp_errors,$tmp_error_msg = ''){
@@ -813,17 +820,17 @@ function forums_output_new_post_separate($tmp_fid,$tmp_tid,$tmp_errors,$tmp_erro
 	}
 
 	if ($user_ID == '' || $user_ID == '0'){
-		$content = $content . '<p><center>' . _('You must be a registered and logged in user of this blog to post on this forum.') . '</center></p>';
+		$content = $content . '<p><center>' . __( 'You must be a registered and logged in user of this blog to post on this forum.', 'wpmudev_forums' ) . '</center></p>';
 	} else {
 		$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_tid . "'");
 		if ($tmp_topic_closed != '1'){
-			$content = $content . '<h3>' . _('New Post') . '</h3>';
+			$content = $content . '<h3>' . __( 'New Post', 'wpmudev_forums' ) . '</h3>';
 			if ($tmp_errors > 0){
 				if ($tmp_error_msg == ''){
-					$tmp_error_msg = 'You must fill in all required fields...';
+					$tmp_error_msg = __( 'You must fill in all required fields...', 'wpmudev_forums' );
 				}
-				$content = $content . '<p><center>' . _($tmp_error_msg) . '</center></p>';	
-				
+				$content = $content . '<p><center>' . __($tmp_error_msg) . '</center></p>';
+
 			}
 			$content = $content . '<form name="new_topic" method="POST" action="?action=new_post_process">';
 			$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
@@ -832,15 +839,15 @@ function forums_output_new_post_separate($tmp_fid,$tmp_tid,$tmp_errors,$tmp_erro
 			$content = $content . '<fieldset style="border:none;">';
 			$content = $content . '<table width="100%" cellspacing="2" cellpadding="5">';
 			$content = $content . '<tr valign="top">';
-			$content = $content . '<th scope="row">' . __('Post:') . '</th>';
+			$content = $content . '<th scope="row">' . __( 'Post:', 'wpmudev_forums' ) . '</th>';
 			$content = $content . '<td><textarea name="post_content" id="post_content" style="width: 95%" rows="5">' . $_POST['post_content'] . '</textarea>';
 			$content = $content . '<br />';
-			$content = $content . __('Required') . '</td>';
+			$content = $content . __( 'Required', 'wpmudev_forums' ) . '</td>';
 			$content = $content . '</tr>';
 			$content = $content . '</table>';
 			$content = $content . '</fieldset>';
 			$content = $content . '<p class="submit">';
-			$content = $content . '<input type="submit" name="Submit" value="' . __('Send Post &raquo;') . '" />';
+			$content = $content . '<input type="submit" name="Submit" value="' . __( 'Send Post &raquo;', 'wpmudev_forums' ) . '" />';
 			$content = $content . '</p>';
 			$content = $content . '</form>';
 		}
@@ -858,19 +865,19 @@ function forums_output_new_post($tmp_fid,$tmp_tid,$tmp_errors,$tmp_error_msg = '
 
 	if ($user_ID == '' || $user_ID == '0'){
 		$content = $content . '<hr />';
-		$content = $content . '<p><center>' . _('You must be a registered and logged in user of this blog to post on this forum.') . '</center></p>';
+		$content = $content . '<p><center>' . __( 'You must be a registered and logged in user of this blog to post on this forum.', 'wpmudev_forums' ) . '</center></p>';
 	} else {
 		$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_tid . "'");
 		if ($tmp_topic_closed != '1'){
 			$content = $content . '<hr />';
 			$content = $content . '<br />';
-			$content = $content . '<h3>' . _('New Post') . '</h3>';
+			$content = $content . '<h3>' . __( 'New Post', 'wpmudev_forums' ) . '</h3>';
 			if ($tmp_errors > 0){
 				if ($tmp_error_msg == ''){
-					$tmp_error_msg = 'You must fill in all required fields...';
+					$tmp_error_msg = __( 'You must fill in all required fields...' );
 				}
-				$content = $content . '<p><center>' . _($tmp_error_msg) . '</center></p>';	
-				
+				$content = $content . '<p><center>' . $tmp_error_msg . '</center></p>';
+
 			}
 			$content = $content . '<form name="new_topic" method="POST" action="?action=new_post_process">';
 			$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
@@ -879,15 +886,15 @@ function forums_output_new_post($tmp_fid,$tmp_tid,$tmp_errors,$tmp_error_msg = '
 			$content = $content . '<fieldset style="border:none;">';
 			$content = $content . '<table width="100%" cellspacing="2" cellpadding="5">';
 			$content = $content . '<tr valign="top">';
-			$content = $content . '<th scope="row">' . __('Post:') . '</th>';
+			$content = $content . '<th scope="row">' . __( 'Post:', 'wpmudev_forums' ) . '</th>';
 			$content = $content . '<td><textarea name="post_content" id="post_content" style="width: 95%" rows="5">' . $_POST['post_content'] . '</textarea>';
 			$content = $content . '<br />';
-			$content = $content . __('Required') . '</td>';
+			$content = $content . __( 'Required', 'wpmudev_forums' ) . '</td>';
 			$content = $content . '</tr>';
 			$content = $content . '</table>';
 			$content = $content . '</fieldset>';
 			$content = $content . '<p class="submit">';
-			$content = $content . '<input type="submit" name="Submit" value="' . __('Send Post &raquo;') . '" />';
+			$content = $content . '<input type="submit" name="Submit" value="' . __( 'Send Post', 'wpmudev_forums' ) . ' &raquo;" />';
 			$content = $content . '</p>';
 			$content = $content . '</form>';
 		}
@@ -922,14 +929,14 @@ function forums_output_edit_post($tmp_pid,$tmp_fid,$tmp_tid,$tmp_errors,$tmp_err
 		$db_prefix = $wpdb->prefix;
 	}
 
-	$tmp_post_content = $wpdb->get_var("SELECT post_content FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");	
-	$content = $content . '<h3>' . _('Edit Post') . '</h3>';
+	$tmp_post_content = $wpdb->get_var("SELECT post_content FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
+	$content = $content . '<h3>' . __( 'Edit Post', 'wpmudev_forums' ) . '</h3>';
 	if ($tmp_errors > 0){
 		if ($tmp_error_msg == ''){
-			$tmp_error_msg = 'You must fill in all required fields...';
+			$tmp_error_msg = __( 'You must fill in all required fields...', 'wpmudev_forums' );
 		}
-		$content = $content . '<p><center>' . _($tmp_error_msg) . '</center></p>';	
-		
+		$content = $content . '<p><center>' . $tmp_error_msg . '</center></p>';
+
 	}
 	$content = $content . '<form name="edit_post" method="POST" action="?action=edit_post_process">';
 	$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
@@ -944,20 +951,20 @@ function forums_output_edit_post($tmp_pid,$tmp_fid,$tmp_tid,$tmp_errors,$tmp_err
 	$content = $content . '<fieldset style="border:none;">';
 	$content = $content . '<table width="100%" cellspacing="2" cellpadding="5">';
 	$content = $content . '<tr valign="top">';
-	$content = $content . '<th scope="row">' . __('Post:') . '</th>';
+	$content = $content . '<th scope="row">' . __( 'Post:', 'wpmudev_forums' ) . '</th>';
 	if ($tmp_errors > 0){
 		$content = $content . '<td><textarea name="post_content" id="post_content" style="width: 95%" rows="5">' . $_POST['post_content'] . '</textarea>';
 	} else {
 		$content = $content . '<td><textarea name="post_content" id="post_content" style="width: 95%" rows="5">' . stripslashes($tmp_post_content) . '</textarea>';
 	}
 	$content = $content . '<br />';
-	$content = $content . __('Required') . '</td>';
+	$content = $content . __( 'Required', 'wpmudev_forums' ) . '</td>';
 	$content = $content . '</tr>';
 	$content = $content . '</table>';
 	$content = $content . '</fieldset>';
 	$content = $content . '<p class="submit">';
-	$content = $content . '<input type="submit" name="Submit" value="' . __('Update &raquo;') . '" />';
-	$content = $content . '<input type="submit" name="Cancel" value="' . __('Cancel &raquo;') . '" />';
+	$content = $content . '<input type="submit" name="Submit" value="' . __( 'Update &raquo;', 'wpmudev_forums' ) . '" />';
+	$content = $content . '<input type="submit" name="Cancel" value="' . __( 'Cancel &raquo;', 'wpmudev_forums' ) . '" />';
 	$content = $content . '</p>';
 	$content = $content . '</form>';
 	return $content;
@@ -980,11 +987,11 @@ function forums_output_delete_post_process($tmp_fid,$tmp_pid,$tmp_tid) {
 	$content = $content . forums_output_topic_nav($tmp_tid);
 	$content = $content . '<br />';
 	$content = $content . forums_output_new_post($tmp_fid,$tmp_tid,0,'');
-	
+
 	$error_count = 0;
-	
-	$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_tid . "' AND post_ID = '" . $tmp_pid . "'");	
-	
+
+	$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_tid . "' AND post_ID = '" . $tmp_pid . "'");
+
 	if ($tmp_post_count > 0){
 		$error_count = $error_count + 1;
 	}
@@ -1001,20 +1008,20 @@ function forums_output_delete_post($tmp_pid,$tmp_tid,$tmp_page) {
 	}
 
 	if ($user_ID == '' || $user_ID == '0'){
-		$content = $content . '<h3>' . _('Delete Post') . '</h3>';
-		$content = $content . '<p><center>' . _('You must be logged in...') . '</center></p>';	
+		$content = $content . '<h3>' . __( 'Delete Post', 'wpmudev_forums' ) . '</h3>';
+		$content = $content . '<p><center>' . __( 'You must be logged in...', 'wpmudev_forums' ) . '</center></p>';
 	} else {
-		$content = $content . '<h3>' . _('Delete Post') . '</h3>';
+		$content = $content . '<h3>' . __( 'Delete Post', 'wpmudev_forums' ) . '</h3>';
 		$content = $content . '<br />';
-		$content = $content . '<p>' . __('Are you sure you want to delete this post?') . '</p>';	
+		$content = $content . '<p>' . __( 'Are you sure you want to delete this post?', 'wpmudev_forums' ) . '</p>';
 		$content = $content . '<form name="delete_topic" method="POST" action="?action=delete_post_process">';
 		$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
 		$content = $content . '<input type="hidden" name="pid" value="' . $tmp_pid . '" />';
 		$content = $content . '<input type="hidden" name="tid" value="' . $tmp_tid . '" />';
 		$content = $content . '<input type="hidden" name="page" value="' . $tmp_page . '" />';
 		$content = $content . '<p class="submit">';
-		$content = $content . '<input type="submit" name="Submit" value="' . __('Delete &raquo;') . '" />';
-		$content = $content . '<input type="submit" name="Cancel" value="' . __('Cancel &raquo;') . '" />';
+		$content = $content . '<input type="submit" name="Submit" value="' . __( 'Delete &raquo;', 'wpmudev_forums' ) . '" />';
+		$content = $content . '<input type="submit" name="Cancel" value="' . __( 'Cancel &raquo;', 'wpmudev_forums' ) . '" />';
 		$content = $content . '</p>';
 		$content = $content . '</form>';
 	}
@@ -1028,17 +1035,17 @@ function forums_output_delete_topic_process($tmp_fid,$tmp_tid) {
 	} else {
 		$db_prefix = $wpdb->prefix;
 	}
-	
+
 	$wpdb->query( "DELETE FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_tid . "' AND topic_forum_ID = '" . $tmp_fid . "'" );
 	$wpdb->query( "DELETE FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_tid . "' AND post_forum_ID = '" . $tmp_fid . "'" );
 
 	forums_forum_count_posts($tmp_fid);
 	forums_forum_count_topics($tmp_fid);
-	
+
 	$error_count = 0;
-	
-	$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_tid . "' AND topic_forum_ID = '" . $tmp_fid . "'");	
-	
+
+	$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_tid . "' AND topic_forum_ID = '" . $tmp_fid . "'");
+
 	if ($tmp_topic_count > 0){
 		$error_count = $error_count + 1;
 	}
@@ -1055,19 +1062,19 @@ function forums_output_delete_topic($tmp_fid,$tmp_tid) {
 	}
 
 	if ($user_ID == '' || $user_ID == '0'){
-		$content = $content . '<h3>' . _('Delete Topic') . '</h3>';
-		$content = $content . '<p><center>' . _('You must be logged in...') . '</center></p>';	
+		$content = $content . '<h3>' . __( 'Delete Topic', 'wpmudev_forums' ) . '</h3>';
+		$content = $content . '<p><center>' . __( 'You must be logged in...', 'wpmudev_forums' ) . '</center></p>';
 	} else {
-		$content = $content . '<h3>' . _('Delete Topic') . '</h3>';
+		$content = $content . '<h3>' . __( 'Delete Topic', 'wpmudev_forums' ) . '</h3>';
 		$content = $content . '<br />';
-		$content = $content . '<p>' . __('Are you sure you want to delete this topic?') . '</p>';	
+		$content = $content . '<p>' . __( 'Are you sure you want to delete this topic?', 'wpmudev_forums' ) . '</p>';
 		$content = $content . '<form name="delete_topic" method="POST" action="?action=delete_topic_process">';
 		$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
 		$content = $content . '<input type="hidden" name="fid" value="' . $tmp_fid . '" />';
 		$content = $content . '<input type="hidden" name="tid" value="' . $tmp_tid . '" />';
 		$content = $content . '<p class="submit">';
-		$content = $content . '<input type="submit" name="Submit" value="' . __('Delete &raquo;') . '" />';
-		$content = $content . '<input type="submit" name="Cancel" value="' . __('Cancel &raquo;') . '" />';
+		$content = $content . '<input type="submit" name="Submit" value="' . __( 'Delete &raquo;', 'wpmudev_forums' ) . '" />';
+		$content = $content . '<input type="submit" name="Cancel" value="' . __( 'Cancel &raquo;', 'wpmudev_forums' ) . '" />';
 		$content = $content . '</p>';
 		$content = $content . '</form>';
 	}
@@ -1075,7 +1082,7 @@ function forums_output_delete_topic($tmp_fid,$tmp_tid) {
 }
 
 function forums_output_topic_nav($tmp_tid){
-	global $wpdb, $forums_posts_per_page;	
+	global $wpdb, $forums_posts_per_page;
 	if ( !empty($wpdb->base_prefix) ) {
 		$db_prefix = $wpdb->base_prefix;
 	} else {
@@ -1105,13 +1112,13 @@ function forums_output_topic_nav($tmp_tid){
 		$tmp_previus_page = $tmp_current_page - 1;
 		$content = $content . '<td width="25%" style="text-align:left"><a href="?topic=' . $_GET['topic'] . '&page=' . $tmp_previus_page . '">' . __(' &laquo; Previous') . '</a></td>';
 	}
-	$content = $content . '<td><center>' . __('Showing ') . $tmp_showing_low . __( ' > ') . $tmp_showing_high . __(' of ') . $tmp_post_count . __(' posts ') . '</center></td>';
+	$content = $content . '<td><center>' . sprintf( __( 'Showing %1s > %2s of %3s posts', 'wpmudev_forums' ), $tmp_showing_low, $tmp_showing_high, $tmp_post_count ) . '</center></td>';
 	if ($tmp_current_page == $tmp_total_pages){
 		//last page
 		$content = $content . '<td width="25%" style="text-align:right"></td>';
 	} else {
 		$tmp_next_page = $tmp_current_page + 1;
-		$content = $content . '<td width="25%" style="text-align:right"><a href="?topic=' . $_GET['topic'] . '&page=' . $tmp_next_page . '">' . __('Next  &raquo;') . '</a></td>';
+		$content = $content . '<td width="25%" style="text-align:right"><a href="?topic=' . $_GET['topic'] . '&page=' . $tmp_next_page . '">' . __( 'Next  &raquo;', 'wpmudev_forums' ) . '</a></td>';
 	}
 	$content = $content . '</tr>';
 	$content = $content . '</table>';
@@ -1148,15 +1155,15 @@ function forums_output_forum_nav($tmp_fid){
 			$content = $content . '<td width="25%" style="text-align:left"></td>';
 		} else {
 			$tmp_previus_page = $tmp_current_page - 1;
-			$content = $content . '<td width="25%" style="text-align:left"><a href="?page=' . $tmp_previus_page . '">' . __(' &laquo; Previous') . '</a></td>';
+			$content = $content . '<td width="25%" style="text-align:left"><a href="?page=' . $tmp_previus_page . '">&laquo; ' . __( 'Previous', 'wpmudev_forums' ) . '</a></td>';
 		}
-		$content = $content . '<td ><center>' . __('Showing ') . $tmp_showing_low . __( ' > ') . $tmp_showing_high . __(' of ') . $tmp_topic_count . __(' topics ') . '</center></td>';
+		$content = $content . '<td ><center>' . sprintf( __( 'Showing %1s > %2s of %3s posts', 'wpmudev_forums' ), $tmp_showing_low, $tmp_showing_high, $tmp_topic_count ) . '</center></td>';
 		if ($tmp_current_page == $tmp_total_pages){
 			//last page
 			$content = $content . '<td width="25%" style="text-align:right"></td>';
 		} else {
 			$tmp_next_page = $tmp_current_page + 1;
-			$content = $content . '<td width="25%" style="text-align:right"><a href="?page=' . $tmp_next_page . '">' . __('Next  &raquo;') . '</a></td>';
+			$content = $content . '<td width="25%" style="text-align:right"><a href="?page=' . $tmp_next_page . '">' . __( 'Next', 'wpmudev_forums' ) . ' &raquo;</a></td>';
 		}
 		$content = $content . '</tr>';
 		$content = $content . '</table>';
@@ -1178,7 +1185,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 	$tmp_forum_color_border = $wpdb->get_var("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: #' . $tmp_forum_color_border . ';"';
-	
+
 	//=========================================//
 	$tmp_current_page = $_GET['page'];
 	if ($tmp_current_page == ''){
@@ -1193,11 +1200,11 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 		$tmp_start = $tmp_math;
 	}
 	//=========================================//
-	
+
 	$query = "SELECT * FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_tid . "'";
 	$query = $query . " ORDER BY post_ID ASC";
 	$query = $query . " LIMIT " . intval( $tmp_start ) . ", " . intval( $forums_posts_per_page );
-	$tmp_posts = $wpdb->get_results( $query, ARRAY_A ); 
+	$tmp_posts = $wpdb->get_results( $query, ARRAY_A );
 	if (count($tmp_posts) > 0){
 		$alt_color = ('alternate' == $alt_color) ? '' : 'alternate';
 		//=========================================================//
@@ -1218,21 +1225,21 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 				$content =  $content . '<td ' . $style . ' width="20%" style="text-align:left" ><p style="padding-left:10px;"><a name="post-' . $tmp_post['post_ID'] . '" id="post-' . $tmp_post['post_ID'] . '"></a>' . forums_author_display_name($tmp_post['post_author']) . '<br /><a href="http://' . $tmp_blog_domain . $tmp_blog_path . '">' . get_avatar( $tmp_post['post_author'], '48', get_option('avatar_default') ) . '</a></p></td>';
 			}
 			$content =  $content . '<td ' . $style . ' width="80%" ><p style="padding-left:10px;">' . forums_display_post_content($tmp_post['post_content']) . '</li><p><hr /><div style="padding-left:10px;">';
-			$content =  $content . __('Posted: ') . date("D, F jS Y g:i A",$tmp_post['post_stamp']);
+			$content =  $content . __( 'Posted: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_post['post_stamp']);
 			$content =  $content . ' <a href="?topic=' . $tmp_tid . '&page=' . $tmp_current_page . '#post-' . $tmp_post['post_ID'] . '">#</a> ';
 			$tmp_now = time;
 			$tmp_then = $tmp_post['post_stamp'];
 			$tmp_ago = $tmp_now - $tmp_then;
 			if(current_user_can('manage_options')){
-				$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_tid . "'");	
+				$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_tid . "'");
 				if ($tmp_post_count > 1){
-					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __('Edit') . '</a>|<a href="?action=delete_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __('Delete') . '</a>';		
+					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>|<a href="?action=delete_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . ___( 'Delete', 'wpmudev_forums' ) . '</a>';
 				} else {
-					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __('Edit') . '</a>';
+					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
 				}
 			} else if ($tmp_ago < 1800){
 				if ($tmp_post['post_author'] == $user_ID){
-					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __('Edit') . '</a>';
+					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
 				}
 			}
 			$content =  $content . '</div></td>';
@@ -1246,7 +1253,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 	} else {
 		$content =  $content . '<table border="0" width="100%" cellpadding="0" cellspacing="0">';
 		$content =  $content . '<tr>';
-		$content =  $content . '<td><center>' . __('No posts to display...') . '</center></td>';
+		$content =  $content . '<td><center>' . __( 'No posts to display...', 'wpmudev_forums' ) . '</center></td>';
 		$content =  $content . '</tr>';
 		$content =  $content . '</table>';
 	}
@@ -1266,11 +1273,11 @@ function forums_topic_process($tmp_fid) {
 	$wpdb->query( "INSERT INTO " . $db_prefix . "forums_topics (topic_forum_ID, topic_title, topic_author, topic_last_author, topic_stamp, topic_last_updated_stamp) VALUES ( '" . $tmp_fid . "', '" . addslashes($_POST['topic_title']) . "', '" . $_POST['uid'] . "', '" . $_POST['uid'] . "', '" . $tmp_time . "', '" . $tmp_time . "')" );
 	$tmp_tid = $wpdb->get_var("SELECT topic_ID FROM " . $db_prefix . "forums_topics WHERE topic_stamp = '" . $tmp_time . "' AND topic_title = '" . addslashes($_POST['topic_title']) . "' AND topic_author = '" . $_POST['uid'] . "'");
 	$wpdb->query( "INSERT INTO " . $db_prefix . "forums_posts (post_forum_ID, post_topic_ID, post_author, post_content, post_stamp) VALUES ( '" . $tmp_fid . "', '" . $tmp_tid . "', '" . $_POST['uid'] . "', '" . $_POST['post_content'] . "', '" . $tmp_time . "')" );
-	
+
 	forums_topic_count_posts($tmp_tid);
 	forums_forum_count_posts($tmp_fid);
 	forums_forum_count_topics($tmp_fid);
-	
+
 	return 	$tmp_tid;
 }
 
@@ -1283,16 +1290,16 @@ function forums_output_new_topic($tmp_fid, $tmp_errors,$tmp_error_msg = '') {
 	}
 
 	if ($user_ID == '' || $user_ID == '0'){
-		$content = $content . '<h3>' . _('New Topic') . '</h3>';
-		$content = $content . '<p><center>' . _('You must be logged in...') . '</center></p>';	
+		$content = $content . '<h3>' . __( 'New Topic', 'wpmudev_forums' ) . '</h3>';
+		$content = $content . '<p><center>' . __( 'You must be logged in...', 'wpmudev_forums' ) . '</center></p>';
 	} else {
-		$content = $content . '<h3>' . _('New Topic') . '</h3>';
+		$content = $content . '<h3>' . __( 'New Topic', 'wpmudev_forums' ) . '</h3>';
 		if ($tmp_errors > 0){
 			if ($tmp_error_msg == ''){
-				$tmp_error_msg = 'You must fill in all required fields...';
+				$tmp_error_msg = __( 'You must fill in all required fields...', 'wpmudev_forums' );
 			}
-			$content = $content . '<p><center>' . _($tmp_error_msg) . '</center></p>';	
-			
+			$content = $content . '<p><center>' . $tmp_error_msg . '</center></p>';
+
 		}
 		$content = $content . '<form name="new_topic" method="POST" action="?action=new_topic_process">';
 		$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
@@ -1300,21 +1307,21 @@ function forums_output_new_topic($tmp_fid, $tmp_errors,$tmp_error_msg = '') {
 		$content = $content . '<fieldset style="border:none;">';
 		$content = $content . '<table width="100%" cellspacing="2" cellpadding="5">';
 		$content = $content . '<tr valign="top">';
-		$content = $content . '<th scope="row">' . __('Title:') . '</th>';
+		$content = $content . '<th scope="row">' . __( 'Title:', 'wpmudev_forums' ) . '</th>';
 		$content = $content . '<td><input type="text" name="topic_title" id="topic_title" style="width: 95%" value="' . $_POST['topic_title'] . '"/>';
 		$content = $content . '<br />';
-		$content = $content . __('Required') . '</td>';
+		$content = $content . __( 'Required', 'wpmudev_forums' ) . '</td>';
 		$content = $content . '</tr>';
 		$content = $content . '<tr valign="top">';
 		$content = $content . '<th scope="row">' . __('Post:') . '</th>';
 		$content = $content . '<td><textarea name="post_content" id="post_content" style="width: 95%" rows="5">' . $_POST['post_content'] . '</textarea>';
 		$content = $content . '<br />';
-		$content = $content . __('Required') . '</td>';
+		$content = $content . __( 'Required', 'wpmudev_forums' ) . '</td>';
 		$content = $content . '</tr>';
 		$content = $content . '</table>';
 		$content = $content . '</fieldset>';
 		$content = $content . '<p class="submit">';
-		$content = $content . '<input type="submit" name="Submit" value="' . __('Send Post &raquo;') . '" />';
+		$content = $content . '<input type="submit" name="Submit" value="' . __( 'Send Post', 'wpmudev_forums' ) . ' &raquo;" />';
 		$content = $content . '</p>';
 		$content = $content . '</form>';
 	}
@@ -1333,25 +1340,25 @@ function forums_output_forum($tmp_fid) {
 	$tmp_forum_color_border = $wpdb->get_var("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: #' . $tmp_forum_color_border . ';padding-top:5px;padding-bottom:5px;"';
-	
+
 	$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_forum_ID = '" . $tmp_fid . "'");
-	
+
 	if ($tmp_topic_count > 0){
 		if ($user_ID == '' || $user_ID == '0'){
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
 			<tr style="background-color:#' . $tmp_forum_color_header . ';">
-				<td ' . $style . ' ><center>' . __('TOPICS') . '</center></td>
-				<td ' . $style . ' ><center>' . __('POSTS') . '</center></td>
-				<td ' . $style . ' ><center>' . __('LATEST POSTER') . '</center></td>
+				<td ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . '</center></td>
+				<td ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></td>
+				<td ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></td>
 			</tr>';
 		} else {
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
 			<tr style="background-color:#' . $tmp_forum_color_header . ';">
-				<td ' . $style . ' ><center>' . __('TOPICS') . '(<a href="?action=new_topic">' . __('NEW') . '</a>)</center></td>
-				<td ' . $style . ' ><center>' . __('POSTS') . '</center></td>
-				<td ' . $style . ' ><center>' . __('LATEST POSTER') . '</center></td>
+				<td ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . '(<a href="?action=new_topic">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></td>
+				<td ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></td>
+				<td ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></td>
 			</tr>';
-		
+
 		}
 	}
 	$content = $content . forums_output_topics($tmp_fid);
@@ -1390,7 +1397,7 @@ function forums_output_topics($tmp_fid) {
 		$tmp_start = $tmp_math;
 	}
 	//=========================================//
-	
+
 	$query = "SELECT * FROM " . $db_prefix . "forums_topics WHERE topic_forum_ID = '" . $tmp_fid . "'";
 	$query = $query . " ORDER BY topic_last_updated_stamp DESC";
 	$query = $query . " LIMIT " . intval( $tmp_start ) . ", " . intval( $forums_topics_per_page );
@@ -1405,7 +1412,7 @@ function forums_output_topics($tmp_fid) {
 				$content =  $content . '<tr style="background-color:#' . $tmp_forum_color_two . '">';
 			}
 			if ($tmp_topic['topic_closed'] == 1){
-				$content =  $content . '<td ' . $style . ' ><center><a href="?topic=' . $tmp_topic['topic_ID'] . '">' . stripslashes($tmp_topic['topic_title']) . ' (' . __('Closed') . ')</a></center></td>';		
+				$content =  $content . '<td ' . $style . ' ><center><a href="?topic=' . $tmp_topic['topic_ID'] . '">' . stripslashes($tmp_topic['topic_title']) . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</a></center></td>';
 			} else {
 				$content =  $content . '<td ' . $style . ' ><center><a href="?topic=' . $tmp_topic['topic_ID'] . '">' . stripslashes($tmp_topic['topic_title']) . '</a></center></td>';
 			}
@@ -1419,18 +1426,18 @@ function forums_output_topics($tmp_fid) {
 		if ($user_ID == '' || $user_ID == '0'){
 			$content =  $content . '<table border="0" width="100%" cellpadding="0" cellspacing="0">';
 			$content =  $content . '<tr>';
-			$content =  $content . '<td><center>' . __('No topics to display...') . '</center></td>';
+			$content =  $content . '<td><center>' . __( 'No topics to display...', 'wpmudev_forums' ) . '</center></td>';
 			$content =  $content . '</tr>';
 			$content =  $content . '</table>';
 		} else {
 			$content =  $content . '<table border="0" width="100%" cellpadding="0" cellspacing="0">';
 			$content =  $content . '<tr>';
-			$content =  $content . '<td><center>' . __('No topics to display... ') . '<a href="?action=new_topic">' . __('Click here') . '</a>' . __(' to create a new topic.') . '</center></td>';
+			$content =  $content . '<td><center>' . __( 'No topics to display...', 'wpmudev_forums' ) . '<a href="?action=new_topic">' . __( 'Click here to create a new topic.', 'wpmudev_forums' ) . '</a></center></td>';
 			$content =  $content . '</tr>';
 			$content =  $content . '</table>';
 		}
 	}
-	/*	
+	/*
 	$content = '<tr>
 		<td>Table Cell</td>
 		<td>Table Cell</td>
@@ -1492,7 +1499,7 @@ function forums_manage_output() {
 	}
 
 	if(!current_user_can('manage_options')) {
-		echo "<p>" . __('Nice Try...') . "</p>";  //If accessed properly, this message doesn't appear.
+		echo "<p>" . __( 'Nice Try...', 'wpmudev_forums' ) . "</p>";  //If accessed properly, this message doesn't appear.
 		return;
 	}
 	/*
@@ -1501,33 +1508,34 @@ function forums_manage_output() {
 	}
 	*/
 	echo '<div class="wrap">';
-	switch( $_GET[ 'action' ] ) {
+	$action = isset( $_GET[ 'action' ] ) ? $_GET[ 'action' ] : '';
+	switch( $action ) {
 		//---------------------------------------------------//
 		default:
 		$tmp_forums_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums WHERE forum_blog_ID = '" . $wpdb->blogid . "'");
 			if ($tmp_forums_count < $forums_max_forums){
 			?>
-            <h2><?php _e('Manage Forums') ?> (<a href="forums.php?action=new_forum"><?php _e('New') ?></a>)</h2>
+            <h2><?php _e( 'Manage Forums', 'wpmudev_forums' ) ?> (<a href="forums.php?action=new_forum"><?php _e( 'New', 'wpmudev_forums' ) ?></a>)</h2>
             <?php
 			} else {
 			?>
-            <h2><?php _e('Manage Forums') ?></h2>
+            <h2><?php _e( 'Manage Forums', 'wpmudev_forums' ) ?></h2>
             <?php
 				if ($forums_enable_upgrades == '1'){
 					if (upgrades_active_feature('68daf8bdc8755fe8f4859024b3054fb8') != 'active'){
 						forums_upgrades_advertise();
 					}
-				}			
+				}
 			}
 			if ($tmp_forums_count == 0){
 			?>
-            <p><?php _e('Click ') ?><a href="forums.php?action=new_forum"><?php _e('here') ?></a><?php _e(' to add a new forum.') ?></p>
+            <p><a href="forums.php?action=new_forum"><?php _e( 'Click here to add a new forum.', 'wpmudev_forums' ) ?></a></p>
             <?php
 			} else {
 			$query = "SELECT * FROM " . $db_prefix . "forums WHERE forum_blog_ID = '" . $wpdb->blogid . "' ORDER BY forum_ID DESC";
 			$tmp_forums = $wpdb->get_results( $query, ARRAY_A );
 			echo "
-			<table cellpadding='3' cellspacing='3' width='100%' class='widefat'> 
+			<table cellpadding='3' cellspacing='3' width='100%' class='widefat'>
 			<thead><tr>
 			<th scope='col'>ID</th>
 			<th scope='col'>Name</th>
@@ -1550,8 +1558,8 @@ function forums_manage_output() {
 				echo "<td valign='top'>" . $tmp_forum['forum_posts'] . "</td>";
 				$tmp_page_code = '[forum:' . $tmp_forum['forum_ID'] . ']';
 				echo "<td valign='top'>" . $tmp_page_code . "</td>";
-				echo "<td valign='top'><a href='forums.php?action=edit_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='edit'>" . __('Edit') . "</a></td>";
-				echo "<td valign='top'><a href='forums.php?action=delete_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='delete'>" . __('Remove') . "</a></td>";
+				echo "<td valign='top'><a href='forums.php?action=edit_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='edit'>" . __( 'Edit', 'wpmudev_forums' ) . "</a></td>";
+				echo "<td valign='top'><a href='forums.php?action=delete_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='delete'>" . __( 'Remove', 'wpmudev_forums' ) . "</a></td>";
 				echo "</tr>";
 				$class = ('alternate' == $class) ? '' : 'alternate';
 				//=========================================================//
@@ -1567,47 +1575,47 @@ function forums_manage_output() {
 			$tmp_forums_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums WHERE forum_blog_ID = '" . $wpdb->blogid . "'");
 			if ($tmp_forums_count < $forums_max_forums){
 				?>
-				<h2><?php _e('New Forum') ?></h2>
-				<form name="form1" method="POST" action="forums.php?action=new_forum_process"> 
+				<h2><?php _e( 'New Forum', 'wpmudev_forums' ) ?></h2>
+				<form name="form1" method="POST" action="forums.php?action=new_forum_process">
 					<table class="form-table">
 					<tr valign="top">
-					<th scope="row"><?php _e('Name') ?></th>
+					<th scope="row"><?php _e( 'Name', 'wpmudev_forums' ) ?></th>
 					<td><input type="text" name="forum_name" id="forum_name" style="width: 95%" value="<?php echo $_POST['forum_name']; ?>" />
 					<br />
-					<?php _e('Required') ?></td> 
+					<?php _e( 'Required', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
-					<th scope="row"><?php _e('Description') ?></th>
+					<th scope="row"><?php _e( 'Description', 'wpmudev_forums' ) ?></th>
 					<td><textarea name="forum_description" id="forum_description" style="width: 95%" rows="5"><?php echo $_POST['forum_description']; ?></textarea>
 					<br />
-					<?php _e('Optional') ?></td> 
+					<?php _e( 'Optional', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
-					<th scope="row"><?php _e('Color One') ?></th>
+					<th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
 					<td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
 					<br />
-					<?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
-					<th scope="row"><?php _e('Color Two') ?></th>
+					<th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
 					<td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
 					<br />
-					<?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
-					<th scope="row"><?php _e('Header Color') ?></th>
+					<th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
 					<td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
 					<br />
-					<?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
-					<th scope="row"><?php _e('Border Color') ?></th>
+					<th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
 					<td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
 					<br />
-					<?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
-					<tr valign="top"> 
-					<th scope="row"><?php _e('Border Size') ?></th> 
+					<tr valign="top">
+					<th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
 					<td><select name="forum_border_size">
 						<option value="0" <?php if ($_POST['forum_border_size'] == '0' || $_POST['forum_border_size'] == '') echo 'selected="selected"'; ?>>0px</option>
 						<option value="1" <?php if ($_POST['forum_border_size'] == '1') echo 'selected="selected"'; ?>>1px</option>
@@ -1616,12 +1624,12 @@ function forums_manage_output() {
 						<option value="4" <?php if ($_POST['forum_border_size'] == '4') echo 'selected="selected"'; ?>>4px</option>
 						<option value="5" <?php if ($_POST['forum_border_size'] == '5') echo 'selected="selected"'; ?>>5px</option>
 					</select>
-					</td> 
+					</td>
 					</tr>
 					</table>
-				<p class="submit"> 
-				<input type="submit" name="Submit" value="<?php _e('Save') ?>" /> 
-				</p> 
+				<p class="submit">
+				<input type="submit" name="Submit" value="<?php _e( 'Save', 'wpmudev_forums' ) ?>" />
+				</p>
 				</form>
 				<?php
             }
@@ -1630,48 +1638,48 @@ function forums_manage_output() {
 		case "new_forum_process":
 			if ($_POST['forum_name'] == ''){
 					?>
-						<h2><?php _e('New Forum') ?></h2>
-                        <p><?php _e('Please fill in all required fields') ?></p>
-						<form name="form1" method="POST" action="forums.php?action=new_forum_process"> 
+						<h2><?php _e( 'New Forum', 'wpmudev_forums' ) ?></h2>
+                        <p><?php _e( 'Please fill in all required fields', 'wpmudev_forums' ) ?></p>
+						<form name="form1" method="POST" action="forums.php?action=new_forum_process">
 							<table class="form-table">
 							<tr valign="top">
-							<th scope="row"><?php _e('Name') ?></th>
+							<th scope="row"><?php _e( 'Name', 'wpmudev_forums' ) ?></th>
 							<td><input type="text" name="forum_name" id="forum_name" style="width: 95%" value="<?php echo $_POST['forum_name']; ?>" />
 							<br />
-							<?php _e('Required') ?></td> 
+							<?php _e( 'Required', 'wpmudev_forums' ) ?></td>
 							</tr>
 							<tr valign="top">
-							<th scope="row"><?php _e('Description') ?></th>
+							<th scope="row"><?php _e( 'Description', 'wpmudev_forums' ) ?></th>
 							<td><textarea name="forum_description" id="forum_description" style="width: 95%" rows="5"><?php echo $_POST['forum_description']; ?></textarea>
 							<br />
-							<?php _e('Optional') ?></td> 
+							<?php _e( 'Optional', 'wpmudev_forums' ) ?></td>
 							</tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Color One') ?></th>
+                            <th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Color Two') ?></th>
+                            <th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Header Color') ?></th>
+                            <th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Border Color') ?></th>
+                            <th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
-                            <tr valign="top"> 
-                            <th scope="row"><?php _e('Border Size') ?></th> 
+                            <tr valign="top">
+                            <th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
                             <td><select name="forum_border_size">
                                 <option value="0" <?php if ($_POST['forum_border_size'] == '0' || $_POST['forum_border_size'] == '') echo 'selected="selected"'; ?>>0px</option>
                                 <option value="1" <?php if ($_POST['forum_border_size'] == '1') echo 'selected="selected"'; ?>>1px</option>
@@ -1680,19 +1688,19 @@ function forums_manage_output() {
                                 <option value="4" <?php if ($_POST['forum_border_size'] == '4') echo 'selected="selected"'; ?>>4px</option>
                                 <option value="5" <?php if ($_POST['forum_border_size'] == '5') echo 'selected="selected"'; ?>>5px</option>
                             </select>
-                            </td> 
+                            </td>
                             </tr>
 							</table>
-						<p class="submit"> 
-						<input type="submit" name="Submit" value="<?php _e('Save') ?>" /> 
-						</p> 
+						<p class="submit">
+						<input type="submit" name="Submit" value="<?php _e( 'Save', 'wpmudev_forums' ) ?>" />
+						</p>
 						</form>
 					<?php
 			} else {
 				$wpdb->query( "INSERT INTO " . $db_prefix . "forums (forum_blog_ID, forum_name, forum_description, forum_color_one, forum_color_two, forum_color_header, forum_color_border, forum_border_size) VALUES ( '" . $wpdb->blogid . "', '" . $_POST['forum_name'] . "' , '" . $_POST['forum_description'] . "', '" . str_replace('#','',$_POST['forum_color_one']) . "', '" . str_replace('#','',$_POST['forum_color_two']) . "', '" . str_replace('#','',$_POST['forum_color_header']) . "', '" . str_replace('#','',$_POST['forum_color_border']) . "', '" . $_POST['forum_border_size'] . "')" );
 				echo "
 				<SCRIPT LANGUAGE='JavaScript'>
-				window.location='forums.php?updated=true&updatedmsg=" . urlencode(__('Forum Added.')) . "';
+				window.location='forums.php?updated=true&updatedmsg=" . urlencode( __( 'Forum Added.', 'wpmudev_forums' ) ) . "';
 				</script>
 				";
 			}
@@ -1707,48 +1715,48 @@ function forums_manage_output() {
 		$tmp_forum_color_border = $wpdb->get_var("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = '" . $_GET['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 		$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $_GET['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 		?>
-			<h2><?php _e('Edit Forum') ?></h2>
-            <form name="form1" method="POST" action="forums.php?action=edit_forum_process"> 
+			<h2><?php _e( 'Edit Forum', 'wpmudev_forums' ) ?></h2>
+            <form name="form1" method="POST" action="forums.php?action=edit_forum_process">
 			<input type="hidden" name="fid" value="<?php echo $_GET['fid']; ?>" />
                 <table class="form-table">
                 <tr valign="top">
-                <th scope="row"><?php _e('Name') ?></th>
+                <th scope="row"><?php _e( 'Name', 'wpmudev_forums' ) ?></th>
 				<td><input type="text" name="forum_name" id="forum_name" style="width: 95%" value="<?php echo $tmp_forum_name; ?>" />
                 <br />
-                <?php _e('Required') ?></td> 
+                <?php _e( 'Required', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
-                <th scope="row"><?php _e('Description') ?></th>
+                <th scope="row"><?php _e( 'Description', 'wpmudev_forums' ) ?></th>
 				<td><textarea name="forum_description" id="forum_description" style="width: 95%" rows="5"><?php echo $tmp_forum_description; ?></textarea>
                 <br />
-                <?php _e('Optional') ?></td> 
+                <?php _e( 'Optional', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
-                <th scope="row"><?php _e('Color One') ?></th>
+                <th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
 				<td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_one; ?>" />
                 <br />
-                <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
-                <th scope="row"><?php _e('Color Two') ?></th>
+                <th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
 				<td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_two; ?>" />
                 <br />
-                <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
-                <th scope="row"><?php _e('Header Color') ?></th>
+                <th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
 				<td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_header; ?>" />
                 <br />
-                <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
-                <th scope="row"><?php _e('Border Color') ?></th>
+                <th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
 				<td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_border; ?>" />
                 <br />
-                <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
-                <tr valign="top"> 
-                <th scope="row"><?php _e('Border Size') ?></th> 
+                <tr valign="top">
+                <th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
                 <td><select name="forum_border_size">
                     <option value="0" <?php if ($tmp_forum_border_size == '0' || $tmp_forum_border_size == '') echo 'selected="selected"'; ?>>0px</option>
                     <option value="1" <?php if ($tmp_forum_border_size == '1') echo 'selected="selected"'; ?>>1px</option>
@@ -1757,12 +1765,12 @@ function forums_manage_output() {
 					<option value="4" <?php if ($tmp_forum_border_size == '4') echo 'selected="selected"'; ?>>4px</option>
                     <option value="5" <?php if ($tmp_forum_border_size == '5') echo 'selected="selected"'; ?>>5px</option>
                 </select>
-				</td> 
+				</td>
                 </tr>
                 </table>
-            <p class="submit"> 
-            <input type="submit" name="Submit" value="<?php _e('Save Changes') ?>" /> 
-            </p> 
+            <p class="submit">
+            <input type="submit" name="Submit" value="<?php _e( 'Save Changes', 'wpmudev_forums' ) ?>" />
+            </p>
             </form>
         <?php
 		break;
@@ -1772,49 +1780,49 @@ function forums_manage_output() {
 			if ($tmp_forum_count > 0){
 				if ($_POST['forum_name'] == ''){
 					?>
-						<h2><?php _e('Edit Forum') ?></h2>
-                        <p><?php _e('Please fill in all required fields') ?></p>
-						<form name="form1" method="POST" action="forums.php?action=edit_forum_process"> 
+						<h2><?php _e( 'Edit Forum', 'wpmudev_forums' ) ?></h2>
+                        <p><?php _e( 'Please fill in all required fields', 'wpmudev_forums' ) ?></p>
+						<form name="form1" method="POST" action="forums.php?action=edit_forum_process">
 						<input type="hidden" name="fid" value="<?php echo $_POST['fid']; ?>" />
 							<table class="form-table">
 							<tr valign="top">
-							<th scope="row"><?php _e('Name') ?></th>
+							<th scope="row"><?php _e( 'Name', 'wpmudev_forums' ) ?></th>
 							<td><input type="text" name="forum_name" id="forum_name" style="width: 95%" value="<?php echo $_POST['forum_name']; ?>" />
 							<br />
-							<?php _e('Required') ?></td> 
+							<?php _e( 'Required', 'wpmudev_forums' ) ?></td>
 							</tr>
 							<tr valign="top">
-							<th scope="row"><?php _e('Description') ?></th>
+							<th scope="row"><?php _e( 'Description', 'wpmudev_forums' ) ?></th>
 							<td><textarea name="forum_description" id="forum_description" style="width: 95%" rows="5"><?php echo $_POST['forum_description']; ?></textarea>
 							<br />
-							<?php _e('Optional') ?></td> 
+							<?php _e( 'Optional', 'wpmudev_forums' ) ?></td>
 							</tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Color One') ?></th>
+                            <th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Color Two') ?></th>
+                            <th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Header Color') ?></th>
+                            <th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
-                            <th scope="row"><?php _e('Border Color') ?></th>
+                            <th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
                             <td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
                             <br />
-                            <?php _e('Optional - Ex: 000000 OR FFFFFF') ?></td> 
+                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
-                            <tr valign="top"> 
-                            <th scope="row"><?php _e('Border Size') ?></th> 
+                            <tr valign="top">
+                            <th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
                             <td><select name="forum_border_size">
                                 <option value="0" <?php if ($_POST['forum_border_size'] == '0' || $_POST['forum_border_size'] == '') echo 'selected="selected"'; ?>>0px</option>
                                 <option value="1" <?php if ($_POST['forum_border_size'] == '1') echo 'selected="selected"'; ?>>1px</option>
@@ -1823,12 +1831,12 @@ function forums_manage_output() {
                                 <option value="4" <?php if ($_POST['forum_border_size'] == '4') echo 'selected="selected"'; ?>>4px</option>
                                 <option value="5" <?php if ($_POST['forum_border_size'] == '5') echo 'selected="selected"'; ?>>5px</option>
                             </select>
-                            </td> 
+                            </td>
                             </tr>
 							</table>
-						<p class="submit"> 
-						<input type="submit" name="Submit" value="<?php _e('Save Changes') ?>" /> 
-						</p> 
+						<p class="submit">
+						<input type="submit" name="Submit" value="<?php _e( 'Save Changes', 'wpmudev_forums' ) ?>" />
+						</p>
 						</form>
 					<?php
 				} else {
@@ -1840,10 +1848,10 @@ function forums_manage_output() {
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_header = '" . str_replace('#','',$_POST['forum_color_header']) . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_border = '" . str_replace('#','',$_POST['forum_color_border']) . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_border_size = '" . $_POST['forum_border_size'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-					
+
 					echo "
 					<SCRIPT LANGUAGE='JavaScript'>
-					window.location='forums.php?updated=true&updatedmsg=" . urlencode(__('Settings saved.')) . "';
+					window.location='forums.php?updated=true&updatedmsg=" . urlencode( __( 'Settings saved.', 'wpmudev_forums' ) ) . "';
 					</script>
 					";
 				}
@@ -1852,13 +1860,13 @@ function forums_manage_output() {
 		//---------------------------------------------------//
 		case "delete_forum":
 		?>
-				<h2><?php _e('Remove Forum') ?></h2>
-                <p><?php _e('Are you sure you want to remove this forum? All topics and posts will be deleted.') ?></p>
+				<h2><?php _e( 'Remove Forum', 'wpmudev_forums' ) ?></h2>
+                <p><?php _e( 'Are you sure you want to remove this forum? All topics and posts will be deleted.', 'wpmudev_forums' ) ?></p>
 				<form name="step_one" method="POST" action="forums.php?action=delete_forum_process">
 				<input type="hidden" name="fid" value="<?php echo $_GET['fid']; ?>" />
-				<p class="submit"> 
-				<input type="submit" name="Submit" value="<?php _e('Continue') ?>" />
-				<input type="submit" name="Cancel" value="<?php _e('Cancel') ?>" /> 
+				<p class="submit">
+				<input type="submit" name="Submit" value="<?php _e( 'Continue', 'wpmudev_forums' ) ?>" />
+				<input type="submit" name="Cancel" value="<?php _e( 'Cancel', 'wpmudev_forums' ) ?>" />
 				</p>
 				</form>
         <?php
@@ -1875,7 +1883,7 @@ function forums_manage_output() {
 				forums_delete_forum($_POST['fid']);
 				echo "
 				<SCRIPT LANGUAGE='JavaScript'>
-				window.location='forums.php?updated=true&updatedmsg=" . urlencode(__('Forum Removed.')) . "';
+				window.location='forums.php?updated=true&updatedmsg=" . urlencode( __( 'Forum Removed.', 'wpmudev_forums' ) ) . "';
 				</script>
 				";
 			}

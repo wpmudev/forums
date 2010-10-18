@@ -1,14 +1,14 @@
 <?php
 /*
 Plugin Name: Forums
-Plugin URI: 
-Description:
-Author: Andrew Billits (Incsub)
-Version: 1.5.1
+Plugin URI: http://premium.wpmudev.org/project/forums
+Description: Allows each blog to have their very own forums - embedded in any page or post.
+Author: Andrew Billits & Ulrich Sossou (Incsub)
+Version: 1.6.3
 Author URI:
 */
 
-/* 
+/*
 Copyright 2007-2009 Incsub (http://incsub.com)
 
 This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 require_once('admin.php');
 
-$title = __('Forums');
+$title = __( 'Forums', 'wpmudev_forums' );
 $parent_file = 'forums.php';
 require_once('admin-header.php');
 
