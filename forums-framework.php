@@ -1233,7 +1233,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 			if(current_user_can('manage_options')){
 				$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_tid . "'");
 				if ($tmp_post_count > 1){
-					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>|<a href="?action=delete_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . ___( 'Delete', 'wpmudev_forums' ) . '</a>';
+					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>|<a href="?action=delete_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Delete', 'wpmudev_forums' ) . '</a>';
 				} else {
 					$content =  $content . '<a href="?action=edit_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
 				}
