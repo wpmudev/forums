@@ -5,7 +5,7 @@
  * Description: Allows each blog to have their very own forums - embedded in any page or post.
  * Author: Andrew Billits & Ulrich Sossou (Incsub)
  * Author URI:
- * Version: 1.6.3
+ * Version: 1.6.4
  * Text Domain: wpmudev_forums
  * WDP ID: 26
 */
@@ -27,7 +27,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '1.6.2';
+$forums_current_version = '1.6.4';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
