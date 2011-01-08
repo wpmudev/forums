@@ -1,13 +1,13 @@
 <?php
 /*
- * Plugin Name: Forums
- * Plugin URI: http://premium.wpmudev.org/project/forums
- * Description: Allows each blog to have their very own forums - embedded in any page or post.
- * Author: Andrew Billits & Ulrich Sossou (Incsub)
- * Author URI:
- * Version: 1.6.4
- * Text Domain: wpmudev_forums
- * WDP ID: 26
+Plugin Name: Forums
+Plugin URI: http://premium.wpmudev.org/project/forums
+Description: Allows each blog to have their very own forums - embedded in any page or post.
+Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
+Author URI: http://premium.wpmudev.org
+Version: 1.6.4
+Text Domain: wpmudev_forums
+WDP ID: 26
 */
 
 /*
@@ -166,8 +166,6 @@ function forums_blog_install() {
 		$wpdb->query( $forums_table1 );
 		$wpdb->query( $forums_table2 );
 		$wpdb->query( $forums_table3 );
-		//$wpdb->query( $forums_table4 );
-		//$wpdb->query( $forums_table5 );
 		update_option( "forums_installed", "yes" );
 	}
 }
@@ -230,18 +228,16 @@ function forums_global_install() {
 		$wpdb->query( $forums_table1 );
 		$wpdb->query( $forums_table2 );
 		$wpdb->query( $forums_table3 );
-		//$wpdb->query( $forums_table4 );
-		//$wpdb->query( $forums_table5 );
 		update_site_option( "forums_installed", "yes" );
 	}
 }
 
 function forums_plug_pages() {
-	add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'forums.php');
+	add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_manage_output');
 }
 
 function forums_admin_bar( $menu ) {
-	unset( $menu['forums.php'] );
+	unset( $menu['admin.php?page=wpmudev_forums'] );
 	return $menu;
 }
 
@@ -1502,11 +1498,6 @@ function forums_manage_output() {
 		echo "<p>" . __( 'Nice Try...', 'wpmudev_forums' ) . "</p>";  //If accessed properly, this message doesn't appear.
 		return;
 	}
-	/*
-	if (isset($_GET['updated'])) {
-		?><div id="message" class="updated fade"><p><?php _e('' . urldecode($_GET['updatedmsg']) . '') ?></p></div><?php
-	}
-	*/
 	echo '<div class="wrap">';
 	$action = isset( $_GET[ 'action' ] ) ? $_GET[ 'action' ] : '';
 	switch( $action ) {
@@ -1515,7 +1506,7 @@ function forums_manage_output() {
 		$tmp_forums_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums WHERE forum_blog_ID = '" . $wpdb->blogid . "'");
 			if ($tmp_forums_count < $forums_max_forums){
 			?>
-            <h2><?php _e( 'Manage Forums', 'wpmudev_forums' ) ?> (<a href="forums.php?action=new_forum"><?php _e( 'New', 'wpmudev_forums' ) ?></a>)</h2>
+            <h2><?php _e( 'Manage Forums', 'wpmudev_forums' ) ?> (<a href="admin.php?page=wpmudev_forums&action=new_forum"><?php _e( 'New', 'wpmudev_forums' ) ?></a>)</h2>
             <?php
 			} else {
 			?>
@@ -1529,7 +1520,7 @@ function forums_manage_output() {
 			}
 			if ($tmp_forums_count == 0){
 			?>
-            <p><a href="forums.php?action=new_forum"><?php _e( 'Click here to add a new forum.', 'wpmudev_forums' ) ?></a></p>
+            <p><a href="admin.php?page=wpmudev_forums&action=new_forum"><?php _e( 'Click here to add a new forum.', 'wpmudev_forums' ) ?></a></p>
             <?php
 			} else {
 			$query = "SELECT * FROM " . $db_prefix . "forums WHERE forum_blog_ID = '" . $wpdb->blogid . "' ORDER BY forum_ID DESC";
@@ -1558,8 +1549,8 @@ function forums_manage_output() {
 				echo "<td valign='top'>" . $tmp_forum['forum_posts'] . "</td>";
 				$tmp_page_code = '[forum:' . $tmp_forum['forum_ID'] . ']';
 				echo "<td valign='top'>" . $tmp_page_code . "</td>";
-				echo "<td valign='top'><a href='forums.php?action=edit_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='edit'>" . __( 'Edit', 'wpmudev_forums' ) . "</a></td>";
-				echo "<td valign='top'><a href='forums.php?action=delete_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='delete'>" . __( 'Remove', 'wpmudev_forums' ) . "</a></td>";
+				echo "<td valign='top'><a href='admin.php?page=wpmudev_forums&action=edit_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='edit'>" . __( 'Edit', 'wpmudev_forums' ) . "</a></td>";
+				echo "<td valign='top'><a href='admin.php?page=wpmudev_forums&action=delete_forum&fid=" . $tmp_forum['forum_ID'] . "' rel='permalink' class='delete'>" . __( 'Remove', 'wpmudev_forums' ) . "</a></td>";
 				echo "</tr>";
 				$class = ('alternate' == $class) ? '' : 'alternate';
 				//=========================================================//
@@ -1576,7 +1567,7 @@ function forums_manage_output() {
 			if ($tmp_forums_count < $forums_max_forums){
 				?>
 				<h2><?php _e( 'New Forum', 'wpmudev_forums' ) ?></h2>
-				<form name="form1" method="POST" action="forums.php?action=new_forum_process">
+				<form name="form1" method="POST" action="admin.php?page=wpmudev_forums&action=new_forum_process">
 					<table class="form-table">
 					<tr valign="top">
 					<th scope="row"><?php _e( 'Name', 'wpmudev_forums' ) ?></th>
@@ -1640,7 +1631,7 @@ function forums_manage_output() {
 					?>
 						<h2><?php _e( 'New Forum', 'wpmudev_forums' ) ?></h2>
                         <p><?php _e( 'Please fill in all required fields', 'wpmudev_forums' ) ?></p>
-						<form name="form1" method="POST" action="forums.php?action=new_forum_process">
+						<form name="form1" method="POST" action="admin.php?page=wpmudev_forums&action=new_forum_process">
 							<table class="form-table">
 							<tr valign="top">
 							<th scope="row"><?php _e( 'Name', 'wpmudev_forums' ) ?></th>
@@ -1700,7 +1691,7 @@ function forums_manage_output() {
 				$wpdb->query( "INSERT INTO " . $db_prefix . "forums (forum_blog_ID, forum_name, forum_description, forum_color_one, forum_color_two, forum_color_header, forum_color_border, forum_border_size) VALUES ( '" . $wpdb->blogid . "', '" . $_POST['forum_name'] . "' , '" . $_POST['forum_description'] . "', '" . str_replace('#','',$_POST['forum_color_one']) . "', '" . str_replace('#','',$_POST['forum_color_two']) . "', '" . str_replace('#','',$_POST['forum_color_header']) . "', '" . str_replace('#','',$_POST['forum_color_border']) . "', '" . $_POST['forum_border_size'] . "')" );
 				echo "
 				<SCRIPT LANGUAGE='JavaScript'>
-				window.location='forums.php?updated=true&updatedmsg=" . urlencode( __( 'Forum Added.', 'wpmudev_forums' ) ) . "';
+				window.location='admin.php?page=wpmudev_forums&updated=true&updatedmsg=" . urlencode( __( 'Forum Added.', 'wpmudev_forums' ) ) . "';
 				</script>
 				";
 			}
@@ -1716,7 +1707,7 @@ function forums_manage_output() {
 		$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $_GET['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 		?>
 			<h2><?php _e( 'Edit Forum', 'wpmudev_forums' ) ?></h2>
-            <form name="form1" method="POST" action="forums.php?action=edit_forum_process">
+            <form name="form1" method="POST" action="admin.php?page=wpmudev_forums&action=edit_forum_process">
 			<input type="hidden" name="fid" value="<?php echo $_GET['fid']; ?>" />
                 <table class="form-table">
                 <tr valign="top">
@@ -1782,7 +1773,7 @@ function forums_manage_output() {
 					?>
 						<h2><?php _e( 'Edit Forum', 'wpmudev_forums' ) ?></h2>
                         <p><?php _e( 'Please fill in all required fields', 'wpmudev_forums' ) ?></p>
-						<form name="form1" method="POST" action="forums.php?action=edit_forum_process">
+						<form name="form1" method="POST" action="admin.php?page=wpmudev_forums&action=edit_forum_process">
 						<input type="hidden" name="fid" value="<?php echo $_POST['fid']; ?>" />
 							<table class="form-table">
 							<tr valign="top">
@@ -1851,7 +1842,7 @@ function forums_manage_output() {
 
 					echo "
 					<SCRIPT LANGUAGE='JavaScript'>
-					window.location='forums.php?updated=true&updatedmsg=" . urlencode( __( 'Settings saved.', 'wpmudev_forums' ) ) . "';
+					window.location='admin.php?page=wpmudev_forums&updated=true&updatedmsg=" . urlencode( __( 'Settings saved.', 'wpmudev_forums' ) ) . "';
 					</script>
 					";
 				}
@@ -1862,7 +1853,7 @@ function forums_manage_output() {
 		?>
 				<h2><?php _e( 'Remove Forum', 'wpmudev_forums' ) ?></h2>
                 <p><?php _e( 'Are you sure you want to remove this forum? All topics and posts will be deleted.', 'wpmudev_forums' ) ?></p>
-				<form name="step_one" method="POST" action="forums.php?action=delete_forum_process">
+				<form name="step_one" method="POST" action="admin.php?page=wpmudev_forums&action=delete_forum_process">
 				<input type="hidden" name="fid" value="<?php echo $_GET['fid']; ?>" />
 				<p class="submit">
 				<input type="submit" name="Submit" value="<?php _e( 'Continue', 'wpmudev_forums' ) ?>" />
@@ -1883,7 +1874,7 @@ function forums_manage_output() {
 				forums_delete_forum($_POST['fid']);
 				echo "
 				<SCRIPT LANGUAGE='JavaScript'>
-				window.location='forums.php?updated=true&updatedmsg=" . urlencode( __( 'Forum Removed.', 'wpmudev_forums' ) ) . "';
+				window.location='admin.php?page=wpmudev_forums&updated=true&updatedmsg=" . urlencode( __( 'Forum Removed.', 'wpmudev_forums' ) ) . "';
 				</script>
 				";
 			}
@@ -1929,4 +1920,12 @@ function forums_roundup($value, $dp){
     return ceil($value*pow(10, $dp))/pow(10, $dp);
 }
 
-?>
+if ( !function_exists( 'wdp_un_check' ) ) {
+	add_action( 'admin_notices', 'wdp_un_check', 5 );
+	add_action( 'network_admin_notices', 'wdp_un_check', 5 );
+
+	function wdp_un_check() {
+		if ( !class_exists( 'WPMUDEV_Update_Notifications' ) && current_user_can( 'edit_users' ) )
+			echo '<div class="error fade"><p>' . __('Please install the latest version of <a href="http://premium.wpmudev.org/project/update-notifications/" title="Download Now &raquo;">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href="http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/">More information &raquo;</a>', 'wpmudev') . '</a></p></div>';
+	}
+}
