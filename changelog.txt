@@ -1,11 +1,11 @@
 Plugin Name: Forums
-Author: Andrew Billits & Ulrich Sossou (Incsub)
+Author: S H Mohanjith (Incsub), Andrew Billits (Incsub), Ulrich Sossou (Incsub)
 
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
-1.6.4 - 01/08/2011
+1.6.5 - 01/08/2011
 ----------------------------------------------------------------------
 - 3.1+ compatibility update
 
