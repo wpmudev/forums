@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 1.6.5
+Version: 1.6.6
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
@@ -262,7 +262,7 @@ function forums_delete_forum($tmp_fid) {
 //------------------------------------------------------------------------//
 
 function forums_output($content) {
-	global $wpdb, $user_ID, $forums_posts_per_page, $current_site;
+	global $wpdb, $user_ID, $forums_posts_per_page, $current_site, $post;
 	if ( !empty($wpdb->base_prefix) ) {
 		$db_prefix = $wpdb->base_prefix;
 	} else {
@@ -366,20 +366,22 @@ function forums_output($content) {
 					$content = $content . '<br />';
 					$content = $content . '<hr />';
 					$content = $content . '<ul>';
-					$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
+					$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date(get_option('date_format', __("D, F jS Y g:i A", 'wpmudev_forums')),$tmp_topic_last_updated) . '</li>';
 					$content = $content . '<li>' . __( 'Latest Reply From: ', 'wpmudev_forums' ) . forums_author_display_name($tmp_topic_last_author) . '</li>';
 					$content = $content . '</ul>';
 					$content = $content . '<hr />';
+					$content = $content . '<center>';
+					$content = $content . '<a href="'.get_permalink($post->ID).'">' . __( 'Back to index', 'wpmudev_forums' ) . '</a> | ';
 					if(current_user_can('manage_options')) {
-						$content = $content . '<center><a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
+						$content = $content . '<a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
 						if ($tmp_topic_closed == 1){
 							$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=open_topic">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
 						} else {
 							$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=close_topic">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
 						}
-						$content = $content . '</center>';
-						$content = $content . '<hr />';
 					}
+					$content = $content . '</center>';
+					$content = $content . '<hr />';
 					$content = $content . forums_output_topic_nav($_GET['topic']);
 					$content = $content . '<br />';
 					$content = $content . forums_output_view_topic($_GET['topic'],$tmp_fid);
@@ -448,20 +450,22 @@ function forums_output($content) {
 						$content = $content . '<br />';
 						$content = $content . '<hr />';
 						$content = $content . '<ul>';
-						$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
+						$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date(get_option('date_format', __("D, F jS Y g:i A", 'wpmudev_forums')),$tmp_topic_last_updated) . '</li>';
 						$content = $content . '<li>' . __( 'Latest Reply From: ', 'wpmudev_forums' ) . forums_author_display_name($tmp_topic_last_author) . '</li>';
 						$content = $content . '</ul>';
 						$content = $content . '<hr />';
+						$content = $content . '<center>';
+						$content = $content . '<a href="'.get_permalink($post->ID).'">' . __( 'Back to index', 'wpmudev_forums' ) . '</a> | ';
 						if(current_user_can('manage_options')) {
-							$content = $content . '<center><a href="?action=delete_topic&tid=' . $_POST['tid'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
+							$content = $content . '<a href="?action=delete_topic&tid=' . $_POST['tid'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
 							if ($tmp_topic_closed == 1){
 								$content = $content . '<a href="?topic=' . $_POST['tid'] . '&action=open_topic">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
 							} else {
 								$content = $content . '<a href="?topic=' . $_POST['tid'] . '&action=close_topic">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
 							}
-							$content = $content . '</center>';
-							$content = $content . '<hr />';
 						}
+						$content = $content . '</center>';
+						$content = $content . '<hr />';
 						$content = $content . forums_output_topic_nav($_POST['tid']);
 						$content = $content . '<br />';
 						$content = $content . forums_output_view_topic($_POST['tid'],$tmp_fid);
@@ -509,20 +513,22 @@ function forums_output($content) {
 								$content = $content . '<br />';
 								$content = $content . '<hr />';
 								$content = $content . '<ul>';
-								$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_topic_last_updated) . '</li>';
+								$content = $content . '<li>' . __( 'Last updated: ', 'wpmudev_forums' ) . date(get_option('date_format', __("D, F jS Y g:i A", 'wpmudev_forums')),$tmp_topic_last_updated) . '</li>';
 								$content = $content . '<li>' . __( 'Latest Reply From: ', 'wpmudev_forums' ) . forums_author_display_name($tmp_topic_last_author) . '</li>';
 								$content = $content . '</ul>';
 								$content = $content . '<hr />';
+								$content = $content . '<center>';
+								$content = $content . '<a href="'.get_permalink($post->ID).'">' . __( 'Back to index', 'wpmudev_forums' ) . '</a> | ';
 								if(current_user_can('manage_options')) {
-									$content = $content . '<center><a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
+									$content = $content . '<a href="?action=delete_topic&tid=' . $_GET['topic'] . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
 									if ($tmp_topic_closed == 1){
 										$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=open_topic">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
 									} else {
 										$content = $content . '<a href="?topic=' . $_GET['topic'] . '&action=close_topic">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
 									}
-									$content = $content . '</center>';
-									$content = $content . '<hr />';
 								}
+								$content = $content . '</center>';
+								$content = $content . '<hr />';
 								$content = $content . forums_output_topic_nav($_POST['tid']);
 								$content = $content . '<br />';
 								$content = $content . forums_output_view_topic($_POST['tid'],$tmp_fid);
@@ -1221,7 +1227,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 				$content =  $content . '<td ' . $style . ' width="20%" style="text-align:left" ><p style="padding-left:10px;"><a name="post-' . $tmp_post['post_ID'] . '" id="post-' . $tmp_post['post_ID'] . '"></a>' . forums_author_display_name($tmp_post['post_author']) . '<br /><a href="http://' . $tmp_blog_domain . $tmp_blog_path . '">' . get_avatar( $tmp_post['post_author'], '48', get_option('avatar_default') ) . '</a></p></td>';
 			}
 			$content =  $content . '<td ' . $style . ' width="80%" ><p style="padding-left:10px;">' . forums_display_post_content($tmp_post['post_content']) . '</li><p><hr /><div style="padding-left:10px;">';
-			$content =  $content . __( 'Posted: ', 'wpmudev_forums' ) . date("D, F jS Y g:i A",$tmp_post['post_stamp']);
+			$content =  $content . __( 'Posted: ', 'wpmudev_forums' ) . date(get_option('date_format', __("D, F jS Y g:i A", 'wpmudev_forums' )),$tmp_post['post_stamp']);
 			$content =  $content . ' <a href="?topic=' . $tmp_tid . '&page=' . $tmp_current_page . '#post-' . $tmp_post['post_ID'] . '">#</a> ';
 			$tmp_now = time;
 			$tmp_then = $tmp_post['post_stamp'];
@@ -1343,16 +1349,16 @@ function forums_output_forum($tmp_fid) {
 		if ($user_ID == '' || $user_ID == '0'){
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
 			<tr style="background-color:#' . $tmp_forum_color_header . ';">
-				<td ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . '</center></td>
-				<td ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></td>
-				<td ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></td>
+				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . '</center></th>
+				<th ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></th>
+				<th ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></th>
 			</tr>';
 		} else {
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
 			<tr style="background-color:#' . $tmp_forum_color_header . ';">
-				<td ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . '(<a href="?action=new_topic">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></td>
-				<td ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></td>
-				<td ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></td>
+				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . ' (<a href="?action=new_topic">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></th>
+				<th ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></th>
+				<th ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></th>
 			</tr>';
 
 		}
