@@ -27,7 +27,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '1.6.4';
+$forums_current_version = '1.6.6';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -36,12 +36,6 @@ $forums_posts_per_page = 20; //The number of posts per page
 $forums_max_forums = 1; //The maximum number of forums per blog - Max 25
 $forums_upgrades_forums = 10; //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
 $forums_enable_upgrades = '0'; //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
-
-if ( defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
-	load_muplugin_textdomain( 'wpmudev_forums', 'forums-files/languages' );
-} else {
-	load_plugin_textdomain( 'wpmudev_forums', false, dirname( plugin_basename( __FILE__ ) ) . '/forums-files/languages' );
-}
 
 function forums_upgrades_advertise(){
 global $forums_max_forums;
@@ -58,7 +52,11 @@ if ( empty( $_GET['key'] ) ){
 	add_action('admin_head', 'forums_make_current');
 }
 //if ($wpdb->blogid == 2){
+add_action('init', 'forums_plug_init');
+add_action('admin_print_styles-toplevel_page_wpmudev_forums', 'forums_admin_styles');
+add_action('admin_print_scripts-toplevel_page_wpmudev_forums', 'forums_admin_scripts');
 add_action('admin_menu', 'forums_plug_pages');
+
 add_filter('wpabar_menuitems', 'forums_admin_bar');
 add_filter('the_content', 'forums_output', 20);
 add_filter('the_excerpt', 'forums_output', 20);
@@ -76,6 +74,29 @@ if ($forums_enable_upgrades == '1'){
 //------------------------------------------------------------------------//
 //---Functions------------------------------------------------------------//
 //------------------------------------------------------------------------//
+function forums_plug_init() {
+	if ( defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
+		load_muplugin_textdomain( 'wpmudev_forums', 'forums-files/languages' );
+	} else {
+		load_plugin_textdomain( 'wpmudev_forums', false, dirname( plugin_basename( __FILE__ ) ) . '/forums-files/languages' );
+	}
+	
+	if (is_admin()) {
+		wp_register_script('farbtastic', plugins_url('forums/js/farbtastic.js'), array('jquery'));
+		wp_register_script('forums_admin_js', plugins_url('forums/js/forums-admin.js'), array('jquery','farbtastic'), $forums_current_version, true);
+		wp_register_style('forums_admin_css', plugins_url('forums/css/wp_admin.css'));
+	}
+}
+
+function forums_admin_styles() {
+	wp_enqueue_style('forums_admin_css');
+}
+	
+function forums_admin_scripts() {
+	wp_enqueue_script('farbtastic');
+	wp_enqueue_script('forums_admin_js');
+}
+
 function forums_make_current() {
 	global $wpdb, $forums_current_version;
 	if ( !empty($wpdb->base_prefix) ) {
@@ -736,9 +757,9 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 			$tmp_counter = $tmp_counter + 1;
 		//=========================================================//
 			if ($alt_color == 'alternate'){
-				$content =  $content . '<tr style="background-color:#' . $tmp_forum_color_one . '">';
+				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_one . '">';
 			} else {
-				$content =  $content . '<tr style="background-color:#' . $tmp_forum_color_two . '">';
+				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_two . '">';
 			}
 			$tmp_topic_title = $wpdb->get_var("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_result['post_topic_ID'] . "'");
 			$tmp_topic_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $tmp_result['post_topic_ID'] . "'");
@@ -1214,9 +1235,9 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 		//=========================================================//
 		foreach ($tmp_posts as $tmp_post){
 			if ($alt_color == 'alternate'){
-				$content =  $content . '<tr style="background-color:#' . $tmp_forum_color_two . '">';
+				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_two . '">';
 			} else {
-				$content =  $content . '<tr style="background-color:#' . $tmp_forum_color_one . '">';
+				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_one . '">';
 			}
 			$tmp_blog_id = $wpdb->get_var("SELECT meta_value FROM " . $db_prefix . "usermeta WHERE meta_key = 'primary_blog' AND user_id = '" . $tmp_post['post_author'] . "'");
 			$tmp_blog_domain = $wpdb->get_var("SELECT domain FROM " . $db_prefix . "blogs WHERE blog_id = '" . $tmp_blog_id . "'");
@@ -1348,14 +1369,14 @@ function forums_output_forum($tmp_fid) {
 	if ($tmp_topic_count > 0){
 		if ($user_ID == '' || $user_ID == '0'){
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
-			<tr style="background-color:#' . $tmp_forum_color_header . ';">
+			<tr style="background-color:' . $tmp_forum_color_header . ';">
 				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . '</center></th>
 				<th ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></th>
 				<th ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></th>
 			</tr>';
 		} else {
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
-			<tr style="background-color:#' . $tmp_forum_color_header . ';">
+			<tr style="background-color:' . $tmp_forum_color_header . ';">
 				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . ' (<a href="?action=new_topic">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></th>
 				<th ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></th>
 				<th ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></th>
@@ -1409,9 +1430,9 @@ function forums_output_topics($tmp_fid) {
 		foreach ($tmp_topics as $tmp_topic){
 		//=========================================================//
 			if ($alt_color == 'alternate'){
-				$content =  $content . '<tr style="background-color:#' . $tmp_forum_color_one . '">';
+				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_one . '">';
 			} else {
-				$content =  $content . '<tr style="background-color:#' . $tmp_forum_color_two . '">';
+				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_two . '">';
 			}
 			if ($tmp_topic['topic_closed'] == 1){
 				$content =  $content . '<td ' . $style . ' ><center><a href="?topic=' . $tmp_topic['topic_ID'] . '">' . stripslashes($tmp_topic['topic_title']) . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</a></center></td>';
@@ -1577,27 +1598,31 @@ function forums_manage_output() {
 					</tr>
 					<tr valign="top">
 					<th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
-					<td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
+					<td><input type="text" name="forum_color_one" id="forum_color_one" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
+					<div class="forum_color" id="forum_color_one_panel"></div>
 					<br />
-					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+					<?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
 					<th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
-					<td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
+					<td><input type="text" name="forum_color_two" id="forum_color_two" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
+					<div class="forum_color" id="forum_color_two_panel"></div>
 					<br />
-					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+					<?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
 					<th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
-					<td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
+					<td><input type="text" name="forum_color_header" id="forum_color_header" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
+					<div class="forum_color" id="forum_color_header_panel"></div>
 					<br />
-					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+					<?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
 					<th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
-					<td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
+					<td><input type="text" name="forum_color_border" id="forum_color_border" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
+					<div class="forum_color" id="forum_color_border_panel"></div>
 					<br />
-					<?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+					<?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
 					</tr>
 					<tr valign="top">
 					<th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
@@ -1641,27 +1666,31 @@ function forums_manage_output() {
 							</tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_one" id="forum_color_one" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
+                            <div class="forum_color" id="forum_color_one_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_two" id="forum_color_two" class="forum_color"  maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
+                            <div class="forum_color" id="forum_color_two_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_header" id="forum_color_header" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
+                            <div class="forum_color" id="forum_color_header_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_border" id="forum_color_border" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
+                            <div class="forum_color" id="forum_color_border_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
@@ -1682,7 +1711,7 @@ function forums_manage_output() {
 						</form>
 					<?php
 			} else {
-				$wpdb->query( "INSERT INTO " . $db_prefix . "forums (forum_blog_ID, forum_name, forum_description, forum_color_one, forum_color_two, forum_color_header, forum_color_border, forum_border_size) VALUES ( '" . $wpdb->blogid . "', '" . $_POST['forum_name'] . "' , '" . $_POST['forum_description'] . "', '" . str_replace('#','',$_POST['forum_color_one']) . "', '" . str_replace('#','',$_POST['forum_color_two']) . "', '" . str_replace('#','',$_POST['forum_color_header']) . "', '" . str_replace('#','',$_POST['forum_color_border']) . "', '" . $_POST['forum_border_size'] . "')" );
+				$wpdb->query( "INSERT INTO " . $db_prefix . "forums (forum_blog_ID, forum_name, forum_description, forum_color_one, forum_color_two, forum_color_header, forum_color_border, forum_border_size) VALUES ( '" . $wpdb->blogid . "', '" . $_POST['forum_name'] . "' , '" . $_POST['forum_description'] . "', '" . $_POST['forum_color_one'] . "', '" . $_POST['forum_color_two'] . "', '" . $_POST['forum_color_header'] . "', '" . $_POST['forum_color_border'] . "', '" . $_POST['forum_border_size'] . "')" );
 				echo "
 				<SCRIPT LANGUAGE='JavaScript'>
 				window.location='admin.php?page=wpmudev_forums&updated=true&updatedmsg=" . urlencode( __( 'Forum Added.', 'wpmudev_forums' ) ) . "';
@@ -1718,27 +1747,31 @@ function forums_manage_output() {
                 </tr>
                 <tr valign="top">
                 <th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
-				<td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_one; ?>" />
-                <br />
-                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+		<td><input type="text" name="forum_color_one" id="forum_color_one" class="forum_color" maxlength="7" value="<?php echo $tmp_forum_color_one; ?>" />
+                <div class="forum_color" id="forum_color_one_panel"></div>
+		<br />
+                <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
                 <th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
-				<td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_two; ?>" />
-                <br />
-                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+				<td><input type="text" name="forum_color_two" id="forum_color_two" class="forum_color" maxlength="7" value="<?php echo $tmp_forum_color_two; ?>" />
+                <div class="forum_color" id="forum_color_two_panel"></div>
+		<br />
+                <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
                 <th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
-				<td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_header; ?>" />
-                <br />
-                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+				<td><input type="text" name="forum_color_header" id="forum_color_header" class="forum_color" maxlength="7" value="<?php echo $tmp_forum_color_header; ?>" />
+                <div class="forum_color" id="forum_color_header_panel"></div>
+		<br />
+                <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
                 <th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
-				<td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $tmp_forum_color_border; ?>" />
-                <br />
-                <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+				<td><input type="text" name="forum_color_border" id="forum_color_border" class="forum_color" maxlength="7" value="<?php echo $tmp_forum_color_border; ?>" />
+                <div class="forum_color" id="forum_color_border_panel"></div>
+		<br />
+                <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                 </tr>
                 <tr valign="top">
                 <th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
@@ -1784,27 +1817,31 @@ function forums_manage_output() {
 							</tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Color One', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_one" id="forum_color_one" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_one" id="forum_color_one" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_one']; ?>" />
+                            <div class="forum_color" id="forum_color_one_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Color Two', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_two" id="forum_color_two" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_two" id="forum_color_two" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_two']; ?>" />
+                            <div class="forum_color" id="forum_color_two_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Header Color', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_header" id="forum_color_header" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_header" id="forum_color_header" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_header']; ?>" />
+                            <div class="forum_color" id="forum_color_header_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Border Color', 'wpmudev_forums' ) ?></th>
-                            <td><input type="text" name="forum_color_border" id="forum_color_border" style="width: 10%"  maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
-                            <br />
-                            <?php _e( 'Optional - Ex: 000000 OR FFFFFF', 'wpmudev_forums' ) ?></td>
+                            <td><input type="text" name="forum_color_border" id="forum_color_border" class="forum_color" maxlength="7" value="<?php echo $_POST['forum_color_border']; ?>" />
+                            <div class="forum_color" id="forum_color_border_panel"></div>
+			    <br />
+                            <?php _e( 'Optional - Ex: #000000 OR #FFFFFF', 'wpmudev_forums' ) ?></td>
                             </tr>
                             <tr valign="top">
                             <th scope="row"><?php _e( 'Border Size', 'wpmudev_forums' ) ?></th>
@@ -1828,10 +1865,10 @@ function forums_manage_output() {
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_name = '" . $_POST['forum_name'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_description = '" . $_POST['forum_description'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 
-					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_one = '" . str_replace('#','',$_POST['forum_color_one']) . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_two = '" . str_replace('#','',$_POST['forum_color_two']) . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_header = '" . str_replace('#','',$_POST['forum_color_header']) . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_border = '" . str_replace('#','',$_POST['forum_color_border']) . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
+					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_one = '" . $_POST['forum_color_one'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
+					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_two = '" . $_POST['forum_color_two'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
+					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_header = '" . $_POST['forum_color_header'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
+					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_border = '" . $_POST['forum_color_border'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_border_size = '" . $_POST['forum_border_size'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 
 					echo "

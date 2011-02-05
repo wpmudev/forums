@@ -10,6 +10,7 @@ Change Log:
 - Use WordPress date settings to format forum dates
 - Added "Back to index" link
 - Fixed: Formatting issues
+- Added color picker
 
 1.6.5 - 01/08/2011
 ----------------------------------------------------------------------
