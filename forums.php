@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 1.6.8
+Version: 1.6.9
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
@@ -76,9 +76,9 @@ if ($forums_enable_upgrades == '1' && function_exists('upgrades_register_feature
 //------------------------------------------------------------------------//
 function forums_plug_init() {
 	if ( defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
-		load_muplugin_textdomain( 'wpmudev_forums', 'forums-files/languages' );
+		load_muplugin_textdomain( 'wpmudev_forums', WPMU_PLUGIN_DIR .'forums/languages' );
 	} else {
-		load_plugin_textdomain( 'wpmudev_forums', false, dirname( plugin_basename( __FILE__ ) ) . '/forums-files/languages' );
+		load_plugin_textdomain( 'wpmudev_forums', false, WP_PLUGIN_DIR . '/forums/languages' );
 	}
 	
 	if (is_admin()) {
