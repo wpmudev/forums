@@ -1,0 +1,583 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Forums 1.6.9\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/forums\n"
+"POT-Creation-Date: 2011-07-16 22:18+0530\n"
+"PO-Revision-Date: 2011-09-08 22:18+0530\n"
+"Last-Translator: S H Mohanjith <moha@mohanjith.net>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"X-Textdomain-Support: yes\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#@ wpmudev_forums
+#: forums.php:43
+#, php-format
+msgid "Visit the upgrades tab to get more forums. Currently you are limit to %s"
+msgstr "Allez sur l'onglet Mise à jour pour ajouter plus de forums. Actuellement le nombre de forum maximum est de %s"
+
+#@ wpmudev_forums
+#: forums.php:67
+#: forums.php:257
+msgid "Forums"
+msgstr "Forums"
+
+#@ wpmudev_forums
+#: forums.php:67
+msgid "Additional Forums"
+msgstr "Forums supplémentaires"
+
+#@ wpmudev_forums
+#: forums.php:322
+msgid "Invalid user account..."
+msgstr "Compte utilisateur invalide"
+
+#@ wpmudev_forums
+#: forums.php:327
+msgid "Invalid forum..."
+msgstr "Forum invalide..."
+
+#@ wpmudev_forums
+#: forums.php:339
+msgid "Topic Added!"
+msgstr "Sujet Ajouté !"
+
+#@ wpmudev_forums
+#: forums.php:359
+#: forums.php:442
+#: forums.php:504
+msgid "Topic Closed!"
+msgstr "Sujet Fermé !"
+
+#@ wpmudev_forums
+#: forums.php:361
+#: forums.php:369
+#: forums.php:426
+#: forums.php:429
+#: forums.php:444
+#: forums.php:452
+#: forums.php:506
+#: forums.php:514
+#: forums.php:573
+#: forums.php:593
+#: forums.php:596
+#: forums.php:637
+#: forums.php:641
+#: forums.php:668
+msgid "Permission denied..."
+msgstr "Permission refusée"
+
+#@ wpmudev_forums
+#: forums.php:367
+#: forums.php:450
+#: forums.php:512
+msgid "Topic Opened!"
+msgstr "Sujet Ouvert !"
+
+#@ wpmudev_forums
+#: forums.php:377
+#: forums.php:461
+#: forums.php:523
+#: forums.php:1438
+msgid "Closed"
+msgstr "Fermé"
+
+#@ wpmudev_forums
+#: forums.php:390
+#: forums.php:474
+#: forums.php:537
+msgid "Last updated: "
+msgstr "Dernier mis à jour : "
+
+#@ wpmudev_forums
+#: forums.php:390
+#: forums.php:474
+#: forums.php:537
+#: forums.php:1251
+msgid "D, F jS Y g:i A"
+msgstr ""
+
+#@ wpmudev_forums
+#: forums.php:391
+#: forums.php:475
+#: forums.php:538
+msgid "Latest Reply From: "
+msgstr "Dernière réponse de : "
+
+#@ wpmudev_forums
+#: forums.php:395
+#: forums.php:479
+#: forums.php:542
+msgid "Back to index"
+msgstr "Retour à l'index"
+
+#@ wpmudev_forums
+#: forums.php:397
+#: forums.php:481
+#: forums.php:544
+#: forums.php:1088
+#: forums.php:1091
+msgid "Delete Topic"
+msgstr "Supprimer le Sujet"
+
+#@ wpmudev_forums
+#: forums.php:399
+#: forums.php:483
+#: forums.php:546
+msgid "Open Topic"
+msgstr "Ouvrir Sujet"
+
+#@ wpmudev_forums
+#: forums.php:401
+#: forums.php:485
+#: forums.php:548
+msgid "Close Topic"
+msgstr "Fermer Sujet"
+
+#@ wpmudev_forums
+#: forums.php:414
+msgid "Invalid topic..."
+msgstr "Sujet invalide..."
+
+#@ wpmudev_forums
+#: forums.php:533
+msgid "Error deleting topic..."
+msgstr "Erreur en supprimant le sujet..."
+
+#@ wpmudev_forums
+#: forums.php:563
+msgid "Topic Deleted!"
+msgstr "Sujet Supprimé !"
+
+#@ wpmudev_forums
+#: forums.php:577
+msgid "Invalid Topic!"
+msgstr "Sujet invalide !"
+
+#@ wpmudev_forums
+#: forums.php:607
+msgid "Error deleting post"
+msgstr "Erreur en supprimant le post"
+
+#@ wpmudev_forums
+#: forums.php:611
+msgid "Post deleted"
+msgstr "Post supprimé"
+
+#@ wpmudev_forums
+#: forums.php:656
+#: forums.php:664
+msgid "Post updated..."
+msgstr "Post mis à jour..."
+
+#@ wpmudev_forums
+#: forums.php:675
+#: forums.php:846
+#: forums.php:891
+msgid "You must be a registered and logged in user of this blog to post on this forum."
+msgstr "Vous devez être un utilisateur enregistré et connecté pour poster sur ce forum."
+
+#@ wpmudev_forums
+#: forums.php:686
+msgid "Post added..."
+msgstr "Post ajouté..."
+
+#@ wpmudev_forums
+#: forums.php:710
+msgid "Invalid Forum Code"
+msgstr "Code de forum invalide"
+
+#@ wpmudev_forums
+#: forums.php:743
+msgid "Search Results"
+msgstr "Résultats de Recherche"
+
+#@ wpmudev_forums
+#: forums.php:746
+msgid "Posts:"
+msgstr "Posts :"
+
+#@ wpmudev_forums
+#: forums.php:781
+msgid "No matches..."
+msgstr "Pas de résultats..."
+
+#@ wpmudev_forums
+#: forums.php:810
+msgid "Search"
+msgstr "Recherche"
+
+#@ wpmudev_forums
+#: forums.php:850
+#: forums.php:897
+msgid "New Post"
+msgstr "Nouveau Post"
+
+#@ wpmudev_forums
+#@ default
+#: forums.php:853
+#: forums.php:900
+#: forums.php:959
+#: forums.php:1322
+msgid "You must fill in all required fields..."
+msgstr "Vous devez remplir tous les champs requis..."
+
+#@ wpmudev_forums
+#@ default
+#: forums.php:865
+#: forums.php:912
+#: forums.php:977
+#: forums.php:1339
+msgid "Post:"
+msgstr "Post :"
+
+#@ wpmudev_forums
+#: forums.php:868
+#: forums.php:915
+#: forums.php:984
+#: forums.php:1336
+#: forums.php:1342
+#: forums.php:1591
+#: forums.php:1659
+#: forums.php:1740
+#: forums.php:1810
+msgid "Required"
+msgstr "Requis"
+
+#@ wpmudev_forums
+#: forums.php:873
+msgid "Send Post &raquo;"
+msgstr "Envoyer Post &raquo;"
+
+#@ wpmudev_forums
+#: forums.php:920
+#: forums.php:1347
+msgid "Send Post"
+msgstr "Envoyer Post"
+
+#@ wpmudev_forums
+#: forums.php:956
+msgid "Edit Post"
+msgstr "Modifier Post"
+
+#@ wpmudev_forums
+#: forums.php:989
+msgid "Update &raquo;"
+msgstr "Modifier &raquo;"
+
+#@ wpmudev_forums
+#: forums.php:990
+#: forums.php:1047
+#: forums.php:1100
+msgid "Cancel &raquo;"
+msgstr "Annuler &raquo;"
+
+#@ wpmudev_forums
+#: forums.php:1034
+#: forums.php:1037
+msgid "Delete Post"
+msgstr "Supprimer Post"
+
+#@ wpmudev_forums
+#: forums.php:1035
+#: forums.php:1089
+#: forums.php:1317
+msgid "You must be logged in..."
+msgstr "Vous devez être connecté..."
+
+#@ wpmudev_forums
+#: forums.php:1039
+msgid "Are you sure you want to delete this post?"
+msgstr "Sûr de vouloir supprimer ce post ?"
+
+#@ wpmudev_forums
+#: forums.php:1046
+#: forums.php:1099
+msgid "Delete &raquo;"
+msgstr "Supprimer &raquo;"
+
+#@ wpmudev_forums
+#: forums.php:1093
+msgid "Are you sure you want to delete this topic?"
+msgstr "Sûr de vouloir supprimer ce sujet ?"
+
+#@ default
+#: forums.php:1136
+msgid " &laquo; Previous"
+msgstr ""
+
+#@ wpmudev_forums
+#: forums.php:1138
+#: forums.php:1183
+#, php-format
+msgid "Showing %1s > %2s of %3s posts"
+msgstr "Affiche %1s > %2s sur %3s posts"
+
+#@ wpmudev_forums
+#: forums.php:1144
+msgid "Next  &raquo;"
+msgstr "Suivant &raquo;"
+
+#@ wpmudev_forums
+#: forums.php:1181
+msgid "Previous"
+msgstr "Précédent &raquo;"
+
+#@ wpmudev_forums
+#: forums.php:1189
+msgid "Next"
+msgstr "Suivant"
+
+#@ wpmudev_forums
+#: forums.php:1251
+msgid "Posted: "
+msgstr "Posté : "
+
+#@ wpmudev_forums
+#: forums.php:1259
+#: forums.php:1261
+#: forums.php:1265
+#: forums.php:1567
+msgid "Edit"
+msgstr "Modifier"
+
+#@ wpmudev_forums
+#: forums.php:1259
+msgid "Delete"
+msgstr "Supprimer"
+
+#@ wpmudev_forums
+#: forums.php:1279
+msgid "No posts to display..."
+msgstr "Aucun post à afficher..."
+
+#@ wpmudev_forums
+#: forums.php:1316
+#: forums.php:1319
+msgid "New Topic"
+msgstr "Nouveau Sujet"
+
+#@ wpmudev_forums
+#: forums.php:1333
+msgid "Title:"
+msgstr "Titre :"
+
+#@ wpmudev_forums
+#: forums.php:1373
+#: forums.php:1380
+msgid "TOPICS"
+msgstr "SUJETS"
+
+#@ wpmudev_forums
+#: forums.php:1374
+#: forums.php:1381
+msgid "POSTS"
+msgstr "POSTS"
+
+#@ wpmudev_forums
+#: forums.php:1375
+#: forums.php:1382
+msgid "LATEST POSTER"
+msgstr "DERNIER POSTEUR"
+
+#@ wpmudev_forums
+#: forums.php:1380
+msgid "NEW"
+msgstr "NOUVEAU"
+
+#@ wpmudev_forums
+#: forums.php:1452
+#: forums.php:1458
+msgid "No topics to display..."
+msgstr "Aucun sujet à afficher..."
+
+#@ wpmudev_forums
+#: forums.php:1458
+msgid "Click here to create a new topic."
+msgstr "Cliquer pour créer un nouveau sujet."
+
+#@ wpmudev_forums
+#: forums.php:1513
+msgid "Nice Try..."
+msgstr "Bien essayé..."
+
+#@ wpmudev_forums
+#: forums.php:1524
+#: forums.php:1528
+msgid "Manage Forums"
+msgstr "Gérer les Forums"
+
+#@ wpmudev_forums
+#: forums.php:1524
+msgid "New"
+msgstr "Nouveau"
+
+#@ wpmudev_forums
+#: forums.php:1538
+msgid "Click here to add a new forum."
+msgstr "Cliquer pour ajouter un nouveau forum."
+
+#@ wpmudev_forums
+#: forums.php:1568
+msgid "Remove"
+msgstr "Supprimer"
+
+#@ wpmudev_forums
+#: forums.php:1584
+#: forums.php:1651
+msgid "New Forum"
+msgstr "Nouveau Forum"
+
+#@ wpmudev_forums
+#: forums.php:1588
+#: forums.php:1656
+#: forums.php:1737
+#: forums.php:1807
+msgid "Name"
+msgstr "Nom"
+
+#@ wpmudev_forums
+#: forums.php:1594
+#: forums.php:1662
+#: forums.php:1743
+#: forums.php:1813
+msgid "Description"
+msgstr "Description"
+
+#@ wpmudev_forums
+#: forums.php:1597
+#: forums.php:1665
+#: forums.php:1746
+#: forums.php:1816
+msgid "Optional"
+msgstr "Facultatif"
+
+#@ wpmudev_forums
+#: forums.php:1600
+#: forums.php:1668
+#: forums.php:1749
+#: forums.php:1819
+msgid "Color One"
+msgstr "Couleur Une"
+
+#@ wpmudev_forums
+#: forums.php:1604
+#: forums.php:1611
+#: forums.php:1618
+#: forums.php:1625
+#: forums.php:1672
+#: forums.php:1679
+#: forums.php:1686
+#: forums.php:1693
+#: forums.php:1753
+#: forums.php:1760
+#: forums.php:1767
+#: forums.php:1774
+#: forums.php:1823
+#: forums.php:1830
+#: forums.php:1837
+#: forums.php:1844
+msgid "Optional - Ex: #000000 OR #FFFFFF"
+msgstr "Facultatif - Ex: #000000 OU #FFFFFF"
+
+#@ wpmudev_forums
+#: forums.php:1607
+#: forums.php:1675
+#: forums.php:1756
+#: forums.php:1826
+msgid "Color Two"
+msgstr "Couleur Deux"
+
+#@ wpmudev_forums
+#: forums.php:1614
+#: forums.php:1682
+#: forums.php:1763
+#: forums.php:1833
+msgid "Header Color"
+msgstr "Couleur de l'Entête"
+
+#@ wpmudev_forums
+#: forums.php:1621
+#: forums.php:1689
+#: forums.php:1770
+#: forums.php:1840
+msgid "Border Color"
+msgstr "Couleur de Bordure"
+
+#@ wpmudev_forums
+#: forums.php:1628
+#: forums.php:1696
+#: forums.php:1777
+#: forums.php:1847
+msgid "Border Size"
+msgstr "Epaisseur de Bordure"
+
+#@ wpmudev_forums
+#: forums.php:1641
+#: forums.php:1709
+msgid "Save"
+msgstr "Enregistrer"
+
+#@ wpmudev_forums
+#: forums.php:1652
+#: forums.php:1802
+msgid "Please fill in all required fields"
+msgstr "Merci de remplir tous les champs requis"
+
+#@ wpmudev_forums
+#: forums.php:1717
+msgid "Forum Added."
+msgstr "Forum Ajouté."
+
+#@ wpmudev_forums
+#: forums.php:1732
+#: forums.php:1801
+msgid "Edit Forum"
+msgstr "Modifier Forum"
+
+#@ wpmudev_forums
+#: forums.php:1790
+#: forums.php:1860
+msgid "Save Changes"
+msgstr "Enregistrer Modifications"
+
+#@ wpmudev_forums
+#: forums.php:1876
+msgid "Settings saved."
+msgstr "Réglages enregistrés."
+
+#@ wpmudev_forums
+#: forums.php:1885
+msgid "Remove Forum"
+msgstr "Supprimer Forum"
+
+#@ wpmudev_forums
+#: forums.php:1886
+msgid "Are you sure you want to remove this forum? All topics and posts will be deleted."
+msgstr "Sûr de vouloir supprimer ce forum ? Tous ses sujets et posts seront supprimés avec."
+
+#@ wpmudev_forums
+#: forums.php:1890
+msgid "Continue"
+msgstr "Continuer"
+
+#@ wpmudev_forums
+#: forums.php:1891
+msgid "Cancel"
+msgstr "Annuler"
+
+#@ wpmudev_forums
+#: forums.php:1908
+msgid "Forum Removed."
+msgstr "Forum supprimé."
+
+#@ wpmudev
+#: forums.php:1960
+msgid "Please install the latest version of <a href=\"http://premium.wpmudev.org/project/update-notifications/\" title=\"Download Now &raquo;\">our free Update Notifications plugin</a> which helps you stay up-to-date with the most stable, secure versions of WPMU DEV themes and plugins. <a href=\"http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/\">More information &raquo;</a>"
+msgstr "Merci d'installer la dernière version de  <a href=\"http://premium.wpmudev.org/project/update-notifications/\" title=\"Download Now &raquo;\">notre plugin gratuit de notifications de mises à jour disponibles</a>  qui vous aidera à les versions les plus stables et sécurisées des thèmes et plugins de WPMU DEV. <a href=\"http://premium.wpmudev.org/wpmu-dev/update-notifications-plugin-information/\">En savoir plus &raquo;</a>"
+

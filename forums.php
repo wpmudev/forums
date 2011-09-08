@@ -78,7 +78,7 @@ function forums_plug_init() {
 	if ( defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
 		load_muplugin_textdomain( 'wpmudev_forums', WPMU_PLUGIN_DIR .'forums/languages' );
 	} else {
-		load_plugin_textdomain( 'wpmudev_forums', false, WP_PLUGIN_DIR . '/forums/languages' );
+		load_plugin_textdomain( 'wpmudev_forums', false, 'forums/languages' );
 	}
 	
 	if (is_admin()) {
@@ -254,7 +254,20 @@ function forums_global_install() {
 }
 
 function forums_plug_pages() {
-	add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_manage_output');
+	if ( function_exists('is_supporter') && !is_supporter()) {
+		add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_non_supporter_output');
+	} else {
+		add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_manage_output');
+	}
+}
+
+function forums_non_supporter_output() {
+	?>
+	<h3><?php _e('Pro Only...', 'incsub_wiki'); ?></h3>
+	<script type="text/javascript">
+	window.location = '<?php echo get_admin_url(); ?>supporter.php';
+	</script>
+	<?php
 }
 
 function forums_admin_bar( $menu ) {
