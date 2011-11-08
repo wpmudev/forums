@@ -8,6 +8,7 @@ Author URI: http://premium.wpmudev.org
 Version: 1.6.9
 Text Domain: wpmudev_forums
 WDP ID: 26
+Text Domain: wpmudev_forums
 */
 
 /*
