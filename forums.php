@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 1.6.9
+Version: 1.7.1
 Text Domain: wpmudev_forums
 WDP ID: 26
 Text Domain: wpmudev_forums
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '1.6.8';
+$forums_current_version = '1.7.1';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -38,6 +38,9 @@ $forums_max_forums = 1; //The maximum number of forums per blog - Max 25
 $forums_upgrades_forums = 10; //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
 $forums_enable_upgrades = '0'; //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
 
+if (!defined('FORUM_DEMO_FOR_NON_SUPPORTER'))
+    define('FORUM_DEMO_FOR_NON_SUPPORTER', false);
+    
 function forums_upgrades_advertise(){
 global $forums_max_forums;
 ?>
@@ -76,6 +79,7 @@ if ($forums_enable_upgrades == '1' && function_exists('upgrades_register_feature
 //---Functions------------------------------------------------------------//
 //------------------------------------------------------------------------//
 function forums_plug_init() {
+	global $forums_current_version;
 	if ( defined( 'WPMU_PLUGIN_DIR' ) && file_exists( WPMU_PLUGIN_DIR . '/' . basename( __FILE__ ) ) ) {
 		load_muplugin_textdomain( 'wpmudev_forums', WPMU_PLUGIN_DIR .'forums/languages' );
 	} else {
@@ -255,7 +259,7 @@ function forums_global_install() {
 }
 
 function forums_plug_pages() {
-	if ( function_exists('is_supporter') && !is_supporter()) {
+	if ( FORUM_DEMO_FOR_NON_SUPPORTER && function_exists('is_supporter') && !is_supporter()) {
 		add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_non_supporter_output');
 	} else {
 		add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_manage_output');
