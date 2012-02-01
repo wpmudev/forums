@@ -32,12 +32,19 @@ $forums_current_version = '1.7.2';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
-$forums_topics_per_page = 20; //The number of topics per page
-$forums_posts_per_page = 20; //The number of posts per page
-$forums_max_forums = 1; //The maximum number of forums per blog - Max 25
-$forums_upgrades_forums = 10; //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
-$forums_enable_upgrades = '0'; //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
-
+if (is_multisite()) {
+	$forums_topics_per_page = get_site_option('forums_topics_per_page', 20); //The number of topics per page
+	$forums_posts_per_page = get_site_option('forums_posts_per_page', 20); //The number of posts per page
+	$forums_max_forums = get_site_option('forums_max_forums', 1); //The maximum number of forums per blog - Max 25
+	$forums_upgrades_forums = get_site_option('forums_upgrades_forums', 10); //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
+	$forums_enable_upgrades = get_site_option('forums_enable_upgrades', '0'); //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
+} else {
+	$forums_topics_per_page = get_option('forums_topics_per_page', 20); //The number of topics per page
+	$forums_posts_per_page = get_option('forums_posts_per_page', 20); //The number of posts per page
+	$forums_max_forums = get_option('forums_max_forums', 1); //The maximum number of forums per blog - Max 25
+	$forums_upgrades_forums = get_option('forums_upgrades_forums', 10); //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
+	$forums_enable_upgrades = get_option('forums_enable_upgrades', '0'); //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
+}
 if (!defined('FORUM_DEMO_FOR_NON_SUPPORTER'))
     define('FORUM_DEMO_FOR_NON_SUPPORTER', false);
     
@@ -60,7 +67,11 @@ add_action('init', 'forums_plug_init');
 add_action('admin_print_styles-toplevel_page_wpmudev_forums', 'forums_admin_styles');
 add_action('admin_print_scripts-toplevel_page_wpmudev_forums', 'forums_admin_scripts');
 add_action('admin_menu', 'forums_plug_pages');
-
+if (is_multisite()) {
+	add_action('network_admin_menu', 'forums_options_plug_pages');
+} else {
+	add_action('admin_menu', 'forums_options_plug_pages');
+}
 add_filter('wpabar_menuitems', 'forums_admin_bar');
 add_filter('the_content', 'forums_output', 20);
 add_filter('the_excerpt', 'forums_output', 20);
@@ -264,6 +275,12 @@ function forums_plug_pages() {
 	} else {
 		add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_manage_output');
 	}
+}
+
+function forums_options_plug_pages() {
+	$page = WP_NETWORK_ADMIN ? 'settings.php' : 'options-general.php';
+        $perms = WP_NETWORK_ADMIN ? 'manage_network_options' : 'manage_options';
+        add_submenu_page($page, __( 'Forum Settings', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), $perms, 'wpmudev_forum_settings', 'forums_manage_options_output');
 }
 
 function forums_non_supporter_output() {
@@ -1518,6 +1535,79 @@ function forums_forum_count_topics($tmp_fid) {
 //------------------------------------------------------------------------//
 //---Page Output Functions------------------------------------------------//
 //------------------------------------------------------------------------//
+function forums_manage_options_output() {
+	global $wpdb, $forums_max_forums, $forums_enable_upgrades, $forums_topics_per_page, $forums_posts_per_page, $forums_upgrades_forums;
+	
+	$page = WP_NETWORK_ADMIN ? 'settings.php' : 'options-general.php';
+	$perms = WP_NETWORK_ADMIN ? 'manage_network_options' : 'manage_options';
+
+	if(!current_user_can($perms)) {
+		echo "<p>" . __( 'Nice Try...', 'wpmudev_forums' ) . "</p>";  //If accessed properly, this message doesn't appear.
+		return;
+	}
+	echo '<div class="wrap">';
+	$action = isset( $_GET[ 'action' ] ) ? $_GET[ 'action' ] : '';
+	
+	if ($action == 'update_settings') {
+		if (WP_NETWORK_ADMIN) {
+			update_site_option('forums_topics_per_page', intval($_POST['forums_topics_per_page']));
+			update_site_option('forums_posts_per_page', intval($_POST['forums_posts_per_page']));
+			update_site_option('forums_max_forums', intval($_POST['forums_max_forums']));
+			if (function_exists('is_supporter')) {
+				update_site_option('forums_upgrades_forums', intval($_POST['forums_upgrades_forums']));
+				update_site_option('forums_enable_upgrades', intval($_POST['forums_enable_upgrades']));
+			}
+		} else {
+			update_option('forums_topics_per_page', intval($_POST['forums_topics_per_page']));
+			update_option('forums_posts_per_page', intval($_POST['forums_posts_per_page']));
+			update_option('forums_max_forums', intval($_POST['forums_max_forums']));
+			if (function_exists('is_supporter')) {
+				update_option('forums_upgrades_forums', intval($_POST['forums_upgrades_forums']));
+				update_option('forums_enable_upgrades', intval($_POST['forums_enable_upgrades']));
+			}
+		}
+		?>
+		<script type="text/javascript">
+			window.location = '<?php echo $page; ?>?page=wpmudev_forum_settings';
+		</script>
+		<?php
+		exit();
+	}
+	
+	?>
+	<h2><?php _e( 'Forum Settings', 'wpmudev_forums' ) ?></h2>
+	<form name="form1" method="post" action="<?php echo $page; ?>?page=wpmudev_forum_settings&action=update_settings">
+		<table class="form-table">
+			<tr valign="top">
+				<th scope="row"><?php _e( 'Topics per page', 'wpmudev_forums' ) ?></th>
+				<td><input type="text" name="forums_topics_per_page" id="forums_topics_per_page" size="3" value="<?php echo $forums_topics_per_page; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><?php _e( 'Posts per page', 'wpmudev_forums' ) ?></th>
+				<td><input type="text" name="forums_posts_per_page" id="forums_posts_per_page" size="3" value="<?php echo $forums_posts_per_page; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><?php _e( 'Maximum number of forums', 'wpmudev_forums' ) ?></th>
+				<td><input type="text" name="forums_max_forums" id="forums_max_forums" size="3" value="<?php echo $forums_max_forums; ?>" /></td>
+			</tr>
+			<?php if (function_exists('is_supporter')) { ?>
+				<tr valign="top">
+					<th scope="row"><?php _e( 'Maximum number of forums for upgraded blogs', 'wpmudev_forums' ) ?></th>
+					<td><input type="text" name="forums_upgrades_forums" id="forums_upgrades_forums" size="3" value="<?php echo $forums_upgrades_forums; ?>" /></td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><?php _e( 'Allow upgrades', 'wpmudev_forums' ) ?></th>
+					<td><input type="text" name="forums_enable_upgrades" id="forums_enable_upgrades" size="3" value="<?php echo $forums_enable_upgrades; ?>" /></td>
+				</tr>
+			<?php } ?>
+		</table>
+		<p class="submit">
+			<input type="submit" name="Submit" value="<?php _e( 'Save', 'wpmudev_forums' ) ?>" />
+		</p>
+	</form>
+	<?php
+	echo '</div>';
+}
 
 function forums_manage_output() {
 	global $wpdb, $forums_max_forums, $forums_enable_upgrades;
