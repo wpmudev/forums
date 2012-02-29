@@ -446,7 +446,7 @@ function forums_output($content) {
 					$content = $content . '<br />';
 					$content = $content . forums_output_new_post($tmp_fid,$_GET['topic'],0,'');
 				} else {
-					$content = $content . '<p><center>' . __( 'Invalid topic...', 'wpmudev_forums' ) . '</center></p>';
+					// Invalid topic
 				}
 			} else if ($_GET['action'] == 'delete_topic'){
 				$tmp_topic_count = 0;
@@ -632,22 +632,22 @@ function forums_output($content) {
 				}
 			} else if ($_GET['action'] == 'delete_post_process'){
 				if ( isset($_POST['Cancel']) ) {
-					$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-					$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '#post-' . $_POST['pid'] . '";';
-					$content = $content . '</script>';
+					echo '<script type="text/javascript">';
+					echo 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '#post-' . $_POST['pid'] . '";';
+					echo '</script>';
 				} else {
 					$tmp_errors = forums_output_delete_post_process($tmp_fid,$_POST['pid'],$_POST['tid']);
 					if ($tmp_errors > 0){
-						$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-						$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __('Error deleting post', 'wpmudev_forums' ) ) . '#post-' . $_POST['pid'] . '";';
-						$content = $content . '</script>';
+						echo '<script type="text/javascript">';
+						echo 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __('Error deleting post', 'wpmudev_forums' ) ) . '#post-' . $_POST['pid'] . '";';
+						echo '</script>';
 					} else {
-						$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-						$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&msg=' . urlencode( __( 'Post deleted', 'wpmudev_forums' ) ) . '";';
-						$content = $content . '</script>';
+						echo '<script type="text/javascript">';
+						echo 'window.location="?topic=' . $_POST['tid'] . '&msg=' . urlencode( __( 'Post deleted', 'wpmudev_forums' ) ) . '";';
+						echo '</script>';
 					}
 				}
-
+				exit();
 			} else if ($_GET['action'] == 'edit_post'){
 				$tmp_topic_count = 0;
 				$tmp_post_count = 0;
@@ -677,9 +677,10 @@ function forums_output($content) {
 				}
 			} else if ($_GET['action'] == 'edit_post_process'){
 				if ( isset($_POST['Cancel']) ) {
-					$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-					$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '#post-' . $_POST['pid'] . '";';
-					$content = $content . '</script>';
+					echo '<script type="text/javascript">';
+					echo 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '#post-' . $_POST['pid'] . '";';
+					echo '</script>';
+					exit();
 				} else {
 					if ($_POST['post_content'] == ''){
 							$content = $content . forums_output_edit_post($_POST['pid'],$tmp_fid,$_POST['tid'],1,'',$_POST['page']);
@@ -687,18 +688,18 @@ function forums_output($content) {
 						//auth check
 						if(current_user_can('manage_options')) {
 							forums_output_edit_post_process($tmp_fid,$_POST['pid'],$_POST['tid']);
-							$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-							$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
-
-							$content = $content . '</script>';
+							echo '<script type="text/javascript">';
+							echo 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
+							echo '</script>';
+							exit();
 						} else {
 							$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 							if ($tmp_post_auhtor == $user_ID){
 								forums_output_edit_post_process($tmp_fid,$_POST['pid'],$_POST['tid']);
-								$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-								$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
-
-								$content = $content . '</script>';
+								echo '<script type="text/javascript">';
+								echo 'window.location="?topic=' . $_POST['tid'] . '&page=' . $_POST['page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
+								echo '</script>';
+								exit();
 							} else {
 								$content = $content . '<p><center>' . __( 'Permission denied...', 'wpmudev_forums' ) . '</center></p>';
 							}
@@ -717,9 +718,10 @@ function forums_output($content) {
 							$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_POST['tid'] . "' AND post_forum_ID = '" . $tmp_fid . "'");
 							$tmp_total_pages = forums_roundup($tmp_post_count / $forums_posts_per_page, 0);
 							forums_output_new_post_process($tmp_fid,$_POST['tid']);
-							$content = $content . '<SCRIPT LANGUAGE="JavaScript">';
-							$content = $content . 'window.location="?topic=' . $_POST['tid'] . '&page=' . $tmp_total_pages . '&msg=' . urlencode( __( 'Post added...', 'wpmudev_forums' ) ) . '";';
-							$content = $content . '</script>';
+							echo '<script type="text/javascript">';
+							echo 'window.location="?topic=' . $_POST['tid'] . '&page=' . $tmp_total_pages . '&msg=' . urlencode( __( 'Post added...', 'wpmudev_forums' ) ) . '";';
+							echo '</script>';
+							exit();
 						}
 					}
 				}
@@ -1843,6 +1845,7 @@ function forums_manage_output() {
 				window.location='admin.php?page=wpmudev_forums&updated=true&updatedmsg=" . urlencode( __( 'Forum Added.', 'wpmudev_forums' ) ) . "';
 				</script>
 				";
+				exit();
 			}
 		break;
 		//---------------------------------------------------//
@@ -1996,12 +1999,12 @@ function forums_manage_output() {
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_header = '" . $_POST['forum_color_header'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_color_border = '" . $_POST['forum_color_border'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 					$wpdb->query( "UPDATE " . $db_prefix . "forums SET forum_border_size = '" . $_POST['forum_border_size'] . "' WHERE forum_ID = '" . $_POST['fid'] . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-
 					echo "
 					<SCRIPT LANGUAGE='JavaScript'>
 					window.location='admin.php?page=wpmudev_forums&updated=true&updatedmsg=" . urlencode( __( 'Settings saved.', 'wpmudev_forums' ) ) . "';
 					</script>
 					";
+					exit();
 				}
 			}
 		break;
@@ -2035,6 +2038,7 @@ function forums_manage_output() {
 				</script>
 				";
 			}
+			exit();
 		break;
 		//---------------------------------------------------//
 		case "temp5":
