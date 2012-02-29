@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 1.7.3
+Version: 2.0.0b1
 Text Domain: wpmudev_forums
 WDP ID: 26
 Text Domain: wpmudev_forums
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '1.7.3';
+$forums_current_version = '2.0.0';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -774,6 +774,19 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 	} else {
 		$db_prefix = $wpdb->prefix;
 	}
+	
+	if (isset($_REQUEST['fid']) && $_REQUEST['fid'] != $tmp_fid) {
+		
+		$content = $content . forums_output_search_form($tmp_fid);
+		$content = $content . '<br />';
+		$content = $content . forums_output_forum_nav($tmp_fid);
+		$content = $content . '<br />';
+		$content = $content . forums_output_forum($tmp_fid);
+		$content = $content . '<br />';
+		$content = $content . forums_output_forum_nav($tmp_fid);
+		
+		return $content;
+	}
 
 	$tmp_forum_color_one = $wpdb->get_var("SELECT forum_color_one FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_color_two = $wpdb->get_var("SELECT forum_color_two FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
@@ -837,9 +850,11 @@ function forums_output_search_form($tmp_fid){
 	$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_forum_ID = '" . $tmp_fid . "'");
 
 	$tmp_query = '';
-	$tmp_query = $_POST['search'];
-	if ($tmp_query == ''){
-		$tmp_query = $_GET['search'];
+	if (isset($_REQUEST['fid']) && $_REQUEST['fid'] == $tmp_fid) {
+		$tmp_query = $_POST['search'];
+		if ($tmp_query == ''){
+			$tmp_query = $_GET['search'];
+		}
 	}
 
 	if ($tmp_topic_count > 0){
