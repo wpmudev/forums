@@ -73,8 +73,8 @@ if (is_multisite()) {
 	add_action('admin_menu', 'forums_options_plug_pages');
 }
 add_filter('wpabar_menuitems', 'forums_admin_bar');
-add_filter('the_content', 'forums_output', 20);
-add_filter('the_excerpt', 'forums_output', 20);
+// add_filter('the_content', 'forums_output', 20);
+// add_filter('the_excerpt', 'forums_output', 20);
 //}
 //--------------------------------Premium---------------------------------//
 if ($forums_enable_upgrades == '1' && function_exists('upgrades_register_feature')){
@@ -760,6 +760,11 @@ function forums_output($content) {
 	return $content;
 }
 
+function forum_shortcode( $atts ) {
+	return forums_output("[forum{$atts[0]}]");
+}
+add_shortcode( 'forum', 'forum_shortcode' );
+
 function forums_output_search_results($tmp_fid,$tmp_query){
 	global $wpdb, $user_ID, $forums_posts_per_page;
 	if ( !empty($wpdb->base_prefix) ) {
@@ -1346,7 +1351,20 @@ function forums_output_new_topic($tmp_fid, $tmp_errors,$tmp_error_msg = '') {
 	} else {
 		$db_prefix = $wpdb->prefix;
 	}
-
+	
+	if (isset($_REQUEST['fid']) && $_REQUEST['fid'] != $tmp_fid) {
+		
+		$content = $content . forums_output_search_form($tmp_fid);
+		$content = $content . '<br />';
+		$content = $content . forums_output_forum_nav($tmp_fid);
+		$content = $content . '<br />';
+		$content = $content . forums_output_forum($tmp_fid);
+		$content = $content . '<br />';
+		$content = $content . forums_output_forum_nav($tmp_fid);
+		
+		return $content;
+	}
+	
 	if ($user_ID == '' || $user_ID == '0'){
 		$content = $content . '<h3>' . __( 'New Topic', 'wpmudev_forums' ) . '</h3>';
 		$content = $content . '<p><center>' . __( 'You must be logged in...', 'wpmudev_forums' ) . '</center></p>';
@@ -1412,7 +1430,7 @@ function forums_output_forum($tmp_fid) {
 		} else {
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
 			<tr style="background-color:' . $tmp_forum_color_header . ';">
-				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . ' (<a href="?action=new_topic">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></th>
+				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . ' (<a href="?action=new_topic&fid='.$tmp_fid.'">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></th>
 				<th ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></th>
 				<th ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></th>
 			</tr>';
@@ -1490,7 +1508,7 @@ function forums_output_topics($tmp_fid) {
 		} else {
 			$content =  $content . '<table border="0" width="100%" cellpadding="0" cellspacing="0">';
 			$content =  $content . '<tr>';
-			$content =  $content . '<td><center>' . __( 'No topics to display...', 'wpmudev_forums' ) . '<a href="?action=new_topic">' . __( 'Click here to create a new topic.', 'wpmudev_forums' ) . '</a></center></td>';
+			$content =  $content . '<td><center>' . __( 'No topics to display...', 'wpmudev_forums' ) . '<a href="?action=new_topic&fid='.$tmp_fid.'">' . __( 'Click here to create a new topic.', 'wpmudev_forums' ) . '</a></center></td>';
 			$content =  $content . '</tr>';
 			$content =  $content . '</table>';
 		}
