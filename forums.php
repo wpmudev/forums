@@ -2103,9 +2103,10 @@ function forums_author_display_name($author_ID){
 	} else {
 		$db_prefix = $wpdb->prefix;
 	}
-
-	$tmp_user_login = $wpdb->get_var("SELECT user_login FROM " . $db_prefix . "users WHERE ID = '" . $author_ID . "'");
-	return $tmp_user_login;
+	$tmp_user = get_userdata( $author_ID );
+	// $tmp_user_login = $wpdb->get_var("SELECT user_login FROM " . $db_prefix . "users WHERE ID = '" . $author_ID . "'");
+	return $tmp_user->display_name;
+	//return $tmp_user_login;
 }
 
 function forums_roundup($value, $dp){
