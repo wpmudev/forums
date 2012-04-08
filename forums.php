@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.0b2
+Version: 2.0.0
 Text Domain: wpmudev_forums
 WDP ID: 26
 Text Domain: wpmudev_forums
@@ -407,10 +407,13 @@ function forums_output($content) {
 							$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 						}
 					}
-					$tmp_topic_title = $wpdb->get_var("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
-					$tmp_topic_last_updated = $wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
-					$tmp_topic_last_author = $wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
-					$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
+					
+					$tmp_topic = $wpdb->get_row("SELECT topic_title, topic_last_updated_stamp, topic_last_author, topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
+					$tmp_topic_title = stripcslashes($tmp_topic->topic_title);
+					$tmp_topic_last_updated = stripslashes($tmp_topic->topic_last_updated_stamp); //$wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+					$tmp_topic_last_author = stripslashes($tmp_topic->topic_last_author); //$wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+					$tmp_topic_closed = stripslashes($tmp_topic->topic_closed); //$wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+					
 					if ($tmp_topic_closed == 1){
 						$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 					} else {
@@ -492,11 +495,13 @@ function forums_output($content) {
 								$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 							}
 						}
-						$tmp_topic_title = $wpdb->get_var("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-						$tmp_topic_last_updated = $wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-						$tmp_topic_last_author = $wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-						$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-
+						
+						$tmp_topic = $wpdb->get_row("SELECT topic_title, topic_last_updated_stamp, topic_last_author, topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+						$tmp_topic_title = stripcslashes($tmp_topic->topic_title);
+						$tmp_topic_last_updated = stripslashes($tmp_topic->topic_last_updated_stamp); //$wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+						$tmp_topic_last_author = stripslashes($tmp_topic->topic_last_author); //$wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+						$tmp_topic_closed = stripslashes($tmp_topic->topic_closed); //$wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+						
 						if ($tmp_topic_closed == 1){
 							$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 						} else {
@@ -554,11 +559,13 @@ function forums_output($content) {
 										$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 									}
 								}
-								$tmp_topic_title = $wpdb->get_var("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-								$tmp_topic_last_updated = $wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-								$tmp_topic_last_author = $wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
-								$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_GET['topic'] . "'");
-
+								
+								$tmp_topic = $wpdb->get_row("SELECT topic_title, topic_last_updated_stamp, topic_last_author, topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+								$tmp_topic_title = stripcslashes($tmp_topic->topic_title);
+								$tmp_topic_last_updated = stripslashes($tmp_topic->topic_last_updated_stamp); //$wpdb->get_var("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+								$tmp_topic_last_author = stripslashes($tmp_topic->topic_last_author); //$wpdb->get_var("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+								$tmp_topic_closed = stripslashes($tmp_topic->topic_closed); //$wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
+								
 								if ($tmp_topic_closed == 1){
 									$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 								} else {
@@ -1146,7 +1153,9 @@ function forums_output_delete_topic($tmp_fid,$tmp_tid) {
 	} else {
 		$db_prefix = $wpdb->prefix;
 	}
-
+	
+	$content = '';
+	
 	if ($user_ID == '' || $user_ID == '0'){
 		$content = $content . '<h3>' . __( 'Delete Topic', 'wpmudev_forums' ) . '</h3>';
 		$content = $content . '<p><center>' . __( 'You must be logged in...', 'wpmudev_forums' ) . '</center></p>';
