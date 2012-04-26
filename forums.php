@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.0
+Version: 2.0.1
 Text Domain: wpmudev_forums
 WDP ID: 26
 Text Domain: wpmudev_forums
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '2.0.0';
+$forums_current_version = '2.0.1';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -46,7 +46,7 @@ if (is_multisite()) {
 	$forums_enable_upgrades = get_option('forums_enable_upgrades', '0'); //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
 }
 if (!defined('FORUM_DEMO_FOR_NON_SUPPORTER'))
-    define('FORUM_DEMO_FOR_NON_SUPPORTER', false);
+    define('FORUM_DEMO_FOR_NON_SUPPORTER', true);
     
 function forums_upgrades_advertise(){
 global $forums_max_forums;
@@ -73,8 +73,6 @@ if (is_multisite()) {
 	add_action('admin_menu', 'forums_options_plug_pages');
 }
 add_filter('wpabar_menuitems', 'forums_admin_bar');
-// add_filter('the_content', 'forums_output', 20);
-// add_filter('the_excerpt', 'forums_output', 20);
 //}
 //--------------------------------Premium---------------------------------//
 if ($forums_enable_upgrades == '1' && function_exists('upgrades_register_feature')){
@@ -284,10 +282,11 @@ function forums_options_plug_pages() {
 }
 
 function forums_non_supporter_output() {
+	global $blog_id, $psts;
 	?>
-	<h3><?php _e('Pro Only...', 'incsub_wiki'); ?></h3>
+	<h3><?php _e('Pro Only...', 'wpmudev_forums'); ?></h3>
 	<script type="text/javascript">
-	window.location = '<?php echo get_admin_url(); ?>supporter.php';
+	window.location = '<?php echo $psts->checkout_url($blog_id); ?>';
 	</script>
 	<?php
 }
