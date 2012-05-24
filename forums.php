@@ -50,7 +50,7 @@ $forums_topics_per_page = ($forums_topics_per_page)?$forums_topics_per_page:20;
 $forums_posts_per_page = ($forums_posts_per_page)?$forums_posts_per_page:20;
 $forums_max_forums = ($forums_max_forums)?$forums_max_forums:1;
 $forums_upgrades_forums = ($forums_upgrades_forums)?$forums_upgrades_forums:10;
-$forums_enable_upgrades = ($forums_enable_upgrades)?$forums_enable_upgrades:'0';
+$forums_enable_upgrades = ($forums_enable_upgrades)?$forums_enable_upgrades:0;
 
 if (!defined('FORUM_DEMO_FOR_NON_SUPPORTER'))
     define('FORUM_DEMO_FOR_NON_SUPPORTER', true);
@@ -82,7 +82,7 @@ if (is_multisite()) {
 add_filter('wpabar_menuitems', 'forums_admin_bar');
 //}
 //--------------------------------Premium---------------------------------//
-if ($forums_enable_upgrades == '1') {
+if ($forums_enable_upgrades == 1) {
 	if (function_exists('upgrades_register_feature')){
 		//register premium features
 		upgrades_register_feature( '68daf8bdc8755fe8f4859024b3054fb8', __( 'Forums', 'wpmudev_forums' ), __( 'Additional Forums', 'wpmudev_forums' ) );
