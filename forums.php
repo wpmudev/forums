@@ -33,18 +33,25 @@ $forums_current_version = '2.0.1';
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
 if (is_multisite()) {
-	$forums_topics_per_page = get_site_option('forums_topics_per_page', 20); //The number of topics per page
-	$forums_posts_per_page = get_site_option('forums_posts_per_page', 20); //The number of posts per page
-	$forums_max_forums = get_site_option('forums_max_forums', 1); //The maximum number of forums per blog - Max 25
-	$forums_upgrades_forums = get_site_option('forums_upgrades_forums', 10); //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
-	$forums_enable_upgrades = get_site_option('forums_enable_upgrades', '0'); //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
+	$forums_topics_per_page = get_site_option('forums_topics_per_page'); //The number of topics per page
+	$forums_posts_per_page = get_site_option('forums_posts_per_page'); //The number of posts per page
+	$forums_max_forums = get_site_option('forums_max_forums'); //The maximum number of forums per blog - Max 25
+	$forums_upgrades_forums = get_site_option('forums_upgrades_forums'); //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
+	$forums_enable_upgrades = get_site_option('forums_enable_upgrades'); //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
 } else {
-	$forums_topics_per_page = get_option('forums_topics_per_page', 20); //The number of topics per page
-	$forums_posts_per_page = get_option('forums_posts_per_page', 20); //The number of posts per page
-	$forums_max_forums = get_option('forums_max_forums', 1); //The maximum number of forums per blog - Max 25
-	$forums_upgrades_forums = get_option('forums_upgrades_forums', 10); //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
-	$forums_enable_upgrades = get_option('forums_enable_upgrades', '0'); //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
+	$forums_topics_per_page = get_option('forums_topics_per_page'); //The number of topics per page
+	$forums_posts_per_page = get_option('forums_posts_per_page'); //The number of posts per page
+	$forums_max_forums = get_option('forums_max_forums'); //The maximum number of forums per blog - Max 25
+	$forums_upgrades_forums = get_option('forums_upgrades_forums'); //The maximum number of forums when the upgrade package is active. This overides the max forums setting - Max 25 <-- Ignore if not using WPMU or WP with Multi-Site enabled
+	$forums_enable_upgrades = get_option('forums_enable_upgrades'); //Either 0 or 1 - 0 = disabled/1 = enabled <-- Ignore if not using WPMU or WP with Multi-Site enabled
 }
+
+$forums_topics_per_page = ($forums_topics_per_page)?$forums_topics_per_page:20;
+$forums_posts_per_page = ($forums_posts_per_page)?$forums_posts_per_page:20;
+$forums_max_forums = ($forums_max_forums)?$forums_max_forums:1;
+$forums_upgrades_forums = ($forums_upgrades_forums)?$forums_upgrades_forums:10;
+$forums_enable_upgrades = ($forums_enable_upgrades)?$forums_enable_upgrades:'0';
+
 if (!defined('FORUM_DEMO_FOR_NON_SUPPORTER'))
     define('FORUM_DEMO_FOR_NON_SUPPORTER', true);
     
@@ -75,12 +82,16 @@ if (is_multisite()) {
 add_filter('wpabar_menuitems', 'forums_admin_bar');
 //}
 //--------------------------------Premium---------------------------------//
-if ($forums_enable_upgrades == '1' && function_exists('upgrades_register_feature')){
-	//register premium features
-	upgrades_register_feature( '68daf8bdc8755fe8f4859024b3054fb8', __( 'Forums', 'wpmudev_forums' ), __( 'Additional Forums', 'wpmudev_forums' ) );
-
-	//load premium features
-	if (upgrades_active_feature('68daf8bdc8755fe8f4859024b3054fb8') == 'active'){
+if ($forums_enable_upgrades == '1') {
+	if (function_exists('upgrades_register_feature')){
+		//register premium features
+		upgrades_register_feature( '68daf8bdc8755fe8f4859024b3054fb8', __( 'Forums', 'wpmudev_forums' ), __( 'Additional Forums', 'wpmudev_forums' ) );
+	
+		//load premium features
+		if (upgrades_active_feature('68daf8bdc8755fe8f4859024b3054fb8') == 'active'){
+			$forums_max_forums = $forums_upgrades_forums;
+		}
+	} else if (function_exists('is_pro_site') && is_pro_site()) {
 		$forums_max_forums = $forums_upgrades_forums;
 	}
 }
@@ -1650,7 +1661,7 @@ function forums_manage_options_output() {
 					<th scope="row"><?php _e( 'Maximum number of forums for upgraded blogs', 'wpmudev_forums' ) ?></th>
 					<td><input type="text" name="forums_upgrades_forums" id="forums_upgrades_forums" size="3" value="<?php echo $forums_upgrades_forums; ?>" /></td>
 				</tr>
-				<?php if (function_exists('upgrades_active_feature')) { ?>
+				<?php if (function_exists('upgrades_active_feature') || function_exists('is_pro_site')) { ?>
 				<tr valign="top">
 					<th scope="row"><?php _e( 'Allow upgrades', 'wpmudev_forums' ) ?></th>
 					<td><input type="text" name="forums_enable_upgrades" id="forums_enable_upgrades" size="3" value="<?php echo $forums_enable_upgrades; ?>" /></td>
