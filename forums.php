@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.1
+Version: 2.0.1.1
 Text Domain: wpmudev_forums
 WDP ID: 26
 Text Domain: wpmudev_forums
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '2.0.1';
+$forums_current_version = '2.0.1.1';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -817,7 +817,7 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 	$tmp_forum_color_header = $wpdb->get_var("SELECT forum_color_header FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_color_border = $wpdb->get_var("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: #' . $tmp_forum_color_border . ';"';
+	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: ' . $tmp_forum_color_border . ';"';
 
 	$content = $content . '<h3>' . __( 'Search Results', 'wpmudev_forums' ) . '</h3>';
 	$content = $content . forums_output_search_form($tmp_fid);
@@ -1294,7 +1294,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 	$tmp_forum_color_header = $wpdb->get_var("SELECT forum_color_header FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_color_border = $wpdb->get_var("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: #' . $tmp_forum_color_border . ';"';
+	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: ' . $tmp_forum_color_border . ';"';
 
 	//=========================================//
 	$tmp_current_page = isset($_GET['page'])?$_GET['page']:'';
@@ -1463,7 +1463,7 @@ function forums_output_forum($tmp_fid) {
 	$tmp_forum_color_header = $wpdb->get_var("SELECT forum_color_header FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_color_border = $wpdb->get_var("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: #' . $tmp_forum_color_border . ';padding-top:5px;padding-bottom:5px;"';
+	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: ' . $tmp_forum_color_border . ';padding-top:5px;padding-bottom:5px;"';
 
 	$tmp_topic_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_topics WHERE topic_forum_ID = '" . $tmp_fid . "'");
 	$content = '';
@@ -1505,7 +1505,7 @@ function forums_output_topics($tmp_fid) {
 	$tmp_forum_color_header = $wpdb->get_var("SELECT forum_color_header FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_color_border = $wpdb->get_var("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
 	$tmp_forum_border_size = $wpdb->get_var("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = '" . $tmp_fid . "' AND forum_blog_ID = '" . $wpdb->blogid . "'");
-	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: #' . $tmp_forum_color_border . ';padding-top:5px;padding-bottom:5px;"';
+	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: ' . $tmp_forum_color_border . ';padding-top:5px;padding-bottom:5px;"';
 
 	//=========================================//
 	$tmp_current_page = isset($_GET['page'])?$_GET['page']:'';
