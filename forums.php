@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.1.2
+Version: 2.0.1.3
 Text Domain: wpmudev_forums
 WDP ID: 26
 Text Domain: wpmudev_forums
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '2.0.1.2';
+$forums_current_version = '2.0.1.3';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -170,6 +170,13 @@ function forums_blog_install() {
 	if (get_option( "forums_installed" ) == "yes") {
 		// do nothing
 	} else {
+		$charset_collate = "";
+		if ( !empty( $wpdb->charset ) ) {
+			$charset_collate .= "DEFAULT CHARACTER SET $wpdb->charset";
+		}
+		if ( !empty( $wpdb->collate ) ) {
+			$charset_collate .= " COLLATE $wpdb->collate";
+		}
 
 		$forums_table1 = "CREATE TABLE `" . $db_prefix . "forums` (
   `forum_ID` bigint(20) unsigned NOT NULL auto_increment,
@@ -185,7 +192,7 @@ function forums_blog_install() {
   `forum_color_border` VARCHAR(255),
   `forum_border_size` VARCHAR(255),
   PRIMARY KEY  (`forum_ID`)
-) ENGINE=MyISAM;";
+) ENGINE=MyISAM {$charset_collate};";
 		$forums_table2 = "CREATE TABLE `" . $db_prefix . "forums_topics` (
   `topic_ID` bigint(20) unsigned NOT NULL auto_increment,
   `topic_forum_ID` bigint(20) NOT NULL,
@@ -198,7 +205,7 @@ function forums_blog_install() {
   `topic_sticky` tinyint(1) NOT NULL default '0',
   `topic_posts` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`topic_ID`)
-) ENGINE=MyISAM;";
+) ENGINE=MyISAM {$charset_collate};";
 		$forums_table3 = "CREATE TABLE `" . $db_prefix . "forums_posts` (
   `post_ID` bigint(20) unsigned NOT NULL auto_increment,
   `post_forum_ID` bigint(20) NOT NULL,
@@ -207,7 +214,7 @@ function forums_blog_install() {
   `post_content` TEXT,
   `post_stamp` bigint(30) NOT NULL,
   PRIMARY KEY  (`post_ID`)
-) ENGINE=MyISAM;";
+) ENGINE=MyISAM {$charset_collate};";
 		$forums_table4 = "";
 		$forums_table5 = "";
 
@@ -683,9 +690,9 @@ function forums_output($content) {
 					$tmp_post_count = $wpdb->get_var("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 				}
 				if ($tmp_post_count > 0){
-					if(current_user_can('manage_options')) {
+					if( current_user_can('manage_options') ) {
 						//yep
-						$content = $content . forums_output_edit_post($tmp_pid,$tmp_fid,$_GET['tid'],0,'',$_GET['forum_page']);
+						$content = $content . forums_output_edit_post($_GET['pid'],$tmp_fid,$_GET['tid'],0,'',$_GET['forum_page']);
 					} else {
 						$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 						if ($tmp_post_auhtor == $user_ID){
@@ -717,7 +724,7 @@ function forums_output($content) {
 							echo '</script>';
 							exit();
 						} else {
-							$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
+							$tmp_post_auhtor = $wpdb->get_var("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_POST['tid'] . "' AND post_ID = '" . $_POST['pid'] . "'");
 							if ($tmp_post_auhtor == $user_ID){
 								forums_output_edit_post_process($tmp_fid,$_POST['pid'],$_POST['tid']);
 								echo '<script type="text/javascript">';
@@ -1016,7 +1023,8 @@ function forums_output_edit_post_process($tmp_fid,$tmp_pid,$tmp_tid) {
 	}
 
 	$wpdb->query( "UPDATE " . $db_prefix . "forums_posts SET post_content = '" . forums_save_post_content($_POST['post_content']) . "' WHERE post_ID = '" . $tmp_pid . "'" );
-
+	
+	$content = '';
 	$content = $content . forums_output_topic_nav($tmp_tid);
 	$content = $content . '<br />';
 	$content = $content . forums_output_view_topic($tmp_tid,$tmp_fid);
@@ -1033,7 +1041,8 @@ function forums_output_edit_post($tmp_pid,$tmp_fid,$tmp_tid,$tmp_errors,$tmp_err
 	} else {
 		$db_prefix = $wpdb->prefix;
 	}
-
+	
+	$content = '';
 	$tmp_post_content = $wpdb->get_var("SELECT post_content FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = '" . $_GET['tid'] . "' AND post_ID = '" . $_GET['pid'] . "'");
 	$content = $content . '<h3>' . __( 'Edit Post', 'wpmudev_forums' ) . '</h3>';
 	if ($tmp_errors > 0){
@@ -1052,7 +1061,7 @@ function forums_output_edit_post($tmp_pid,$tmp_fid,$tmp_tid,$tmp_errors,$tmp_err
 	}
 	$content = $content . '<input type="hidden" name="tid" value="' . $tmp_tid . '" />';
 	$content = $content . '<input type="hidden" name="fid" value="' . $tmp_fid . '" />';
-	$content = $content . '<input type="hidden" name="page" value="' . $tmp_page . '" />';
+	$content = $content . '<input type="hidden" name="forum_page" value="' . $tmp_page . '" />';
 	$content = $content . '<fieldset style="border:none;">';
 	$content = $content . '<table width="100%" cellspacing="2" cellpadding="5">';
 	$content = $content . '<tr valign="top">';
@@ -1123,7 +1132,7 @@ function forums_output_delete_post($tmp_pid,$tmp_tid,$tmp_page) {
 		$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
 		$content = $content . '<input type="hidden" name="pid" value="' . $tmp_pid . '" />';
 		$content = $content . '<input type="hidden" name="tid" value="' . $tmp_tid . '" />';
-		$content = $content . '<input type="hidden" name="page" value="' . $tmp_page . '" />';
+		$content = $content . '<input type="hidden" name="forum_page" value="' . $tmp_page . '" />';
 		$content = $content . '<p class="submit">';
 		$content = $content . '<input type="submit" name="Submit" value="' . __( 'Delete &raquo;', 'wpmudev_forums' ) . '" />';
 		$content = $content . '<input type="submit" name="Cancel" value="' . __( 'Cancel &raquo;', 'wpmudev_forums' ) . '" />';
@@ -1348,7 +1357,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 				} else {
 					$content =  $content . '<a href="?action=edit_post&forum_page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
 				}
-			} else if ($tmp_ago < 1800){
+			} else if ($tmp_ago < 1800) {
 				if ($tmp_post['post_author'] == $user_ID){
 					$content =  $content . '<a href="?action=edit_post&forum_page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . $tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
 				}
