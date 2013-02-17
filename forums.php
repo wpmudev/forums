@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.1.3
+Version: 2.0.1.4
 Text Domain: wpmudev_forums
 WDP ID: 26
 Text Domain: wpmudev_forums
@@ -28,7 +28,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '2.0.1.3';
+$forums_current_version = '2.0.1.4';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -739,7 +739,7 @@ function forums_output($content) {
 				}
 			} else if ($_action == 'new_post_process'){
 				if ($user_ID == '' || $user_ID == '0'){
-					$content = $content . '<p><center>' . __( 'You must be a registered and logged in user of this blog to post on this forum.', 'wpmudev_forums' ) . '</center></p>';
+					$content = $content . '<p><center>' . sprintf( __( 'You must be a registered and logged in user of this blog to post on this forum. Please <a href="%s">Log In</a> or %s.', 'wpmudev_forums' ), wp_login_url(),  wp_register('', '', false) ) . '</center></p>';
 				} else {
 					$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $_POST['tid'] . "'");
 					if ($tmp_topic_closed != '1'){
@@ -932,7 +932,7 @@ function forums_output_new_post_separate($tmp_fid,$tmp_tid,$tmp_errors,$tmp_erro
 	}
 
 	if ($user_ID == '' || $user_ID == '0'){
-		$content = $content . '<p><center>' . __( 'You must be a registered and logged in user of this blog to post on this forum.', 'wpmudev_forums' ) . '</center></p>';
+		$content = $content . '<p><center>' . sprintf( __( 'You must be a registered and logged in user of this blog to post on this forum. Please <a href="%s">Log In</a> or %s.', 'wpmudev_forums' ), wp_login_url(),  wp_register('', '', false) ) . '</center></p>';
 	} else {
 		$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_tid . "'");
 		if ($tmp_topic_closed != '1'){
@@ -977,7 +977,7 @@ function forums_output_new_post($tmp_fid,$tmp_tid,$tmp_errors,$tmp_error_msg = '
 	$content = '';
 	if ($user_ID == '' || $user_ID == '0'){
 		$content = $content . '<hr />';
-		$content = $content . '<p><center>' . __( 'You must be a registered and logged in user of this blog to post on this forum.', 'wpmudev_forums' ) . '</center></p>';
+		$content = $content . '<p><center>' . sprintf( __( 'You must be a registered and logged in user of this blog to post on this forum. Please <a href="%s">Log In</a> or %s.', 'wpmudev_forums' ), wp_login_url(),  wp_register('', '', false) ) . '</center></p>';
 	} else {
 		$tmp_topic_closed = $wpdb->get_var("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = '" . $tmp_tid . "'");
 		if ($tmp_topic_closed != '1'){
