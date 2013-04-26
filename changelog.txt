@@ -5,6 +5,12 @@ Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+2.0.1.5 - 04/26/2013 - Aaron Edwards
+----------------------------------------------------------------------
+- IMPORTANT security update - props to JJJ @ Automattic for disclosure
+- SQL Injection hardening
+- XSS prevention
+
 2.0.1.4 - 02/17/2013
 ----------------------------------------------------------------------
 - Login and register links added into logged out message
