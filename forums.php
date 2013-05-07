@@ -421,6 +421,13 @@ function forums_output($content) {
 								array(
 								      'topic_ID' => $_GET['topic'],
 								      'topic_forum_ID' => $tmp_fid,
+								),
+								array(
+									'%d'
+								),
+								array(
+									'%d',
+									'%d'
 								)
 							);
 							$tmp_msg = __( 'Topic Closed!', 'wpmudev_forums' );
@@ -438,6 +445,13 @@ function forums_output($content) {
 								array(
 								      'topic_ID' => $_GET['topic'],
 								      'topic_forum_ID' => $tmp_fid,
+								),
+								array(
+									'%d'
+								),
+								array(
+									'%d',
+									'%d'
 								)
 							);
 							$tmp_msg = __( 'Topic Opened!', 'wpmudev_forums' );
@@ -524,6 +538,13 @@ function forums_output($content) {
 									array(
 										'topic_ID' => $_GET['topic'],
 										'topic_forum_ID' => $tmp_fid,
+									),
+									array(
+										'%d'
+									),
+									array(
+										'%d',
+										'%d'
 									)
 								);
 								$tmp_msg = __( 'Topic Closed!', 'wpmudev_forums' );
@@ -541,6 +562,13 @@ function forums_output($content) {
 									array(
 									      'topic_ID' => $_GET['topic'],
 									      'topic_forum_ID' => $tmp_fid,
+									),
+									array(
+										'%d'
+									),
+									array(
+										'%d',
+										'%d'
 									)
 								);
 								$tmp_msg = __( 'Topic Opened!', 'wpmudev_forums' );
@@ -604,6 +632,13 @@ function forums_output($content) {
 											array(
 											      'topic_ID' => $_GET['topic'],
 											      'topic_forum_ID' => $tmp_fid
+											),
+											array(
+												'%d'
+											),
+											array(
+												'%d',
+												'%d'
 											)
 										);
 										$tmp_msg = __( 'Topic Closed!', 'wpmudev_forums' );
@@ -621,6 +656,13 @@ function forums_output($content) {
 											array(
 											      'topic_ID' => $_GET['topic'],
 											      'topic_forum_ID' => $tmp_fid
+											),
+											array(
+												'%d'
+											),
+											array(
+												'%d',
+												'%d'
 											)
 										);
 										$tmp_msg = __( 'Topic Opened!', 'wpmudev_forums' );
@@ -845,6 +887,7 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 		$db_prefix = $wpdb->prefix;
 	}
 	
+	$content = '';
 	if (isset($_REQUEST['fid']) && $_REQUEST['fid'] != $tmp_fid) {
 		
 		$content = $content . forums_output_search_form($tmp_fid);
@@ -865,6 +908,7 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 	$tmp_forum_border_size = $wpdb->get_var( $wpdb->prepare("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = %d AND forum_blog_ID = %d", $tmp_fid, $wpdb->blogid) );
 	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: ' . $tmp_forum_color_border . ';"';
 
+	
 	$content = $content . '<h3>' . __( 'Search Results', 'wpmudev_forums' ) . '</h3>';
 	$content = $content . forums_output_search_form($tmp_fid);
 	$content = $content . '<br />';
@@ -873,8 +917,9 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 	$query = "SELECT * FROM " . $db_prefix . "forums_posts WHERE post_forum_ID = %d AND post_content LIKE %s";
 	$query = $query . " ORDER BY post_ID ASC";
 	$query = $query . " LIMIT 25";
-	$tmp_results = $wpdb->get_results( $wpdb->prepare($query, $tmp_fid, $tmp_query), ARRAY_A );
+	$tmp_results = $wpdb->get_results( $wpdb->prepare($query, $tmp_fid, '%' . $tmp_query . '%' ), ARRAY_A );
 	if (count($tmp_results) > 0){
+		$alt_color = '';
 		$alt_color = ('alternate' == $alt_color) ? '' : 'alternate';
 		$tmp_counter = 0;
 		$content = $content . '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">';
@@ -960,6 +1005,13 @@ function forums_output_new_post_process($tmp_fid,$tmp_tid) {
 		      'post_author' => $user_ID,
 		      'post_content' => forums_save_post_content($_POST['post_content']),
 		      'post_stamp' => time(),
+		),
+		array(
+			'%d',
+			'%d',
+			'%d',
+			'%s',
+			'%d'
 		)
 	);
 	$wpdb->update(
@@ -970,6 +1022,13 @@ function forums_output_new_post_process($tmp_fid,$tmp_tid) {
 		),
 		array(
 		      'topic_ID' => $tmp_tid,
+		),
+		array(
+			'%d',
+			'%d'
+		),
+		array(
+			'%d'
 		)
 	);
 
@@ -1085,6 +1144,12 @@ function forums_output_edit_post_process($tmp_fid,$tmp_pid,$tmp_tid) {
 		),
 		array(
 		      'post_ID' => $tmp_pid,
+		),
+		array(
+			'%s'
+		),
+		array(
+			'%d'
 		)
 	);
 
@@ -1454,6 +1519,14 @@ function forums_topic_process($tmp_fid) {
 		      'topic_last_author' => $_POST['uid'],
 		      'topic_stamp' => $tmp_time,
 		      'topic_last_updated_stamp' => $tmp_time,
+		),
+		array(
+			'%d',
+			'%s',
+			'%d',
+			'%d',
+			'%d',
+			'%d'
 		)
 	);
 	$tmp_tid = $wpdb->get_var( $wpdb->prepare("SELECT topic_ID FROM " . $db_prefix . "forums_topics WHERE topic_stamp = %d AND topic_title = %s AND topic_author = %d", $tmp_time, $_POST['topic_title'], $_POST['uid'] ) );
@@ -1465,6 +1538,13 @@ function forums_topic_process($tmp_fid) {
 		      'post_author' => $_POST['uid'],
 		      'post_content' => $_POST['post_content'],
 		      'post_stamp' => $tmp_time,
+		),
+		array(
+			'%d',
+			'%d',
+			'%d',
+			'%s',
+			'%d'
 		)
 	);
 
@@ -1662,6 +1742,12 @@ function forums_topic_count_posts($tmp_tid) {
 		),
 		array(
 		      'topic_ID' => $tmp_tid,
+		),
+		array(
+			'%d'
+		),
+		array(
+			'%d'
 		)
 	);
 }
@@ -1681,6 +1767,12 @@ function forums_forum_count_posts($tmp_fid) {
 		),
 		array(
 		      'forum_ID' => $tmp_fid,
+		),
+		array(
+			'%d'
+		),
+		array(
+			'%d'
 		)
 	);
 }
@@ -1700,6 +1792,12 @@ function forums_forum_count_topics($tmp_fid) {
 		),
 		array(
 		      'forum_ID' => $tmp_fid,
+		),
+		array(
+			'%d'
+		),
+		array(
+			'%d'
 		)
 	);
 }
@@ -2013,7 +2111,18 @@ function forums_manage_output() {
 					      'forum_color_header' => $_POST['forum_color_header'],
 					      'forum_color_border' => $_POST['forum_color_border'],
 					      'forum_border_size' => $_POST['forum_border_size'],
+					),
+					array(
+						'%d',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%d'
 					)
+
 				);
 				echo "
 				<SCRIPT LANGUAGE='JavaScript'>
@@ -2180,6 +2289,19 @@ function forums_manage_output() {
 						array(
 						      'forum_ID' => $_POST['fid'],
 						      'forum_blog_ID' => $wpdb->blogid
+						),
+						array(
+							'%s',
+							'%s',
+							'%s',
+							'%s',
+							'%s',
+							'%s',
+							'%d'
+						),
+						array(
+							'%d',
+							'%d'
 						)
 					);
 					echo "
