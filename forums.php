@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums/
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.1.6
+Version: 2.0.1.7
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
@@ -27,7 +27,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '2.0.1.6';
+$forums_current_version = '2.0.1.7';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -459,10 +459,13 @@ function forums_output($content) {
 							$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 						}
 					}
-					$tmp_topic_title = $wpdb->get_var( $wpdb->prepare("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_GET['topic']) );
-					$tmp_topic_last_updated = $wpdb->get_var( $wpdb->prepare("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_GET['topic']) );
-					$tmp_topic_last_author = $wpdb->get_var( $wpdb->prepare("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_GET['topic']) );
-					$tmp_topic_closed = $wpdb->get_var( $wpdb->prepare("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_GET['topic']) );
+					$tmp_forum = forum_get_details($_GET['topic']);
+					
+					$tmp_topic_title = $tmp_forum['topic_title'];
+					$tmp_topic_last_updated = $tmp_forum['topic_last_updated_stamp'];
+					$tmp_topic_last_author = $tmp_forum['topic_last_author'];
+					$tmp_topic_closed = $tmp_forum['topic_closed'];
+					
 					if ($tmp_topic_closed == 1){
 						$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 					} else {
@@ -474,7 +477,7 @@ function forums_output($content) {
 					}
 					
 					if (isset($_GET['msg']) && $_GET['msg'] != ''){
-					$content = $content . '<p><center>' . esc_html(urldecode($_GET['msg'])) . '</center></p>';
+						$content = $content . '<p><center>' . esc_html(urldecode($_GET['msg'])) . '</center></p>';
 					}
 					$content = $content . '<br />';
 					$content .= forums_get_metadata( $tmp_topic_last_updated, $tmp_topic_last_author );
@@ -560,11 +563,14 @@ function forums_output($content) {
 								$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 							}
 						}
-						$tmp_topic_title = $wpdb->get_var( $wpdb->prepare("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_POST['tid']) );
-						$tmp_topic_last_updated = $wpdb->get_var( $wpdb->prepare("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_POST['tid']) );
-						$tmp_topic_last_author = $wpdb->get_var( $wpdb->prepare("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_POST['tid']) );
-						$tmp_topic_closed = $wpdb->get_var( $wpdb->prepare("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_POST['tid']) );
-
+						
+						$tmp_forum = forum_get_details($_POST['tid']);
+						
+						$tmp_topic_title = $tmp_forum['topic_title'];
+						$tmp_topic_last_updated = $tmp_forum['topic_last_updated_stamp'];
+						$tmp_topic_last_author = $tmp_forum['topic_last_author'];
+						$tmp_topic_closed = $tmp_forum['topic_closed'];
+					
 						if ($tmp_topic_closed == 1){
 							$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 						} else {
@@ -638,11 +644,13 @@ function forums_output($content) {
 										$tmp_msg = __( 'Permission denied...', 'wpmudev_forums' );
 									}
 								}
-								$tmp_topic_title = $wpdb->get_var( $wpdb->prepare("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_POST['tid']) );
-								$tmp_topic_last_updated = $wpdb->get_var( $wpdb->prepare("SELECT topic_last_updated_stamp FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_POST['tid']) );
-								$tmp_topic_last_author = $wpdb->get_var( $wpdb->prepare("SELECT topic_last_author FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_POST['tid']) );
-								$tmp_topic_closed = $wpdb->get_var( $wpdb->prepare("SELECT topic_closed FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_GET['topic']) );
-
+								$tmp_forum = forum_get_details($_POST['tid']);
+								
+								$tmp_topic_title = $tmp_forum['topic_title'];
+								$tmp_topic_last_updated = $tmp_forum['topic_last_updated_stamp'];
+								$tmp_topic_last_author = $tmp_forum['topic_last_author'];
+								$tmp_topic_closed = $tmp_forum['topic_closed'];
+								
 								if ($tmp_topic_closed == 1){
 									$content = $content . '<h3>' . $tmp_topic_title . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</h3>';
 								} else {
@@ -909,8 +917,11 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 			} else {
 				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_two . '">';
 			}
-			$tmp_topic_title = $wpdb->get_var( $wpdb->prepare("SELECT topic_title FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $tmp_result['post_topic_ID']) );
+			$tmp_forum = forum_get_details($_POST['tid']);
+			
+			$tmp_topic_title = $tmp_forum['topic_title'];
 			$tmp_topic_post_count = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = %d", $tmp_result['post_topic_ID']) );
+			
 			$content =  $content . '<td ' . $style . ' ><center>' . $tmp_counter . '.</center></td>';
 			$content =  $content . '<td ' . $style . ' ><p>';
 			if ($tmp_topic_post_count > $forums_posts_per_page){
@@ -1406,6 +1417,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 	$tmp_forum_color_header = $wpdb->get_var( $wpdb->prepare("SELECT forum_color_header FROM " . $db_prefix . "forums WHERE forum_ID = %d AND forum_blog_ID = %d", $tmp_fid, $wpdb->blogid) );
 	$tmp_forum_color_border = $wpdb->get_var( $wpdb->prepare("SELECT forum_color_border FROM " . $db_prefix . "forums WHERE forum_ID = %d AND forum_blog_ID = %d", $tmp_fid, $wpdb->blogid) );
 	$tmp_forum_border_size = $wpdb->get_var( $wpdb->prepare("SELECT forum_border_size FROM " . $db_prefix . "forums WHERE forum_ID = %d AND forum_blog_ID = %d", $tmp_fid, $wpdb->blogid) );
+	
 	$style = 'style="border-collapse: collapse;border-style: solid;border-width: ' . $tmp_forum_border_size . 'px;border-color: ' . $tmp_forum_color_border . ';padding-top:5px;padding-bottom:5px;"';
 
 	//=========================================//
@@ -1926,7 +1938,7 @@ function forums_manage_output() {
 				//=========================================================//
 				echo "<tr class='" . $class . "'>";
 				echo "<td valign='top'><strong>" . (int)$tmp_forum['forum_ID'] . "</strong></td>";
-				echo "<td valign='top'>" . esc_html($tmp_forum['forum_name']) . "</td>";
+				echo "<td valign='top'>" . esc_html(stripslashes($tmp_forum['forum_name'])) . "</td>";
 				echo "<td valign='top'>" . (int)$tmp_forum['forum_topics'] . "</td>";
 				echo "<td valign='top'>" . (int)$tmp_forum['forum_posts'] . "</td>";
 				$tmp_page_code = '[forum:' . (int)$tmp_forum['forum_ID'] . ']';
@@ -2338,7 +2350,6 @@ function forums_manage_output() {
 
 function forums_save_post_content($post_content){
 	$post_content = strip_tags($post_content, '<p><ul><li><a><strong><img>');
-	$post_content = addslashes($post_content);
 	return $post_content;
 }
 
@@ -2377,6 +2388,27 @@ function forums_author_display_name($author_ID){
 
 function forums_roundup($value, $dp){
     return ceil($value*pow(10, $dp))/pow(10, $dp);
+}
+
+function forum_get_details($topic_id) {
+	global $wpdb;
+	
+	if ( !empty($wpdb->base_prefix) ) {
+		$db_prefix = $wpdb->base_prefix;
+	} else {
+		$db_prefix = $wpdb->prefix;
+	}
+	
+	$forum = $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_GET['topic']),  ARRAY_A);
+	
+	if ($forum) {
+		$forum['topic_title'] = stripslashes($forum['topic_title']);
+		$forum['topic_last_updated_stamp'] = stripslashes($forum['topic_last_updated_stamp']);
+		$forum['topic_last_author'] = stripslashes($forum['topic_last_author']);
+		$forum['topic_closed'] = stripslashes($forum['topic_closed']);
+	}
+	
+	return $forum;
 }
 
 if ( !function_exists( 'wdp_un_check' ) ) {
