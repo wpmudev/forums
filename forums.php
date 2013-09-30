@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums/
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.1.7
+Version: 2.0.1.8
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
@@ -27,7 +27,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '2.0.1.7';
+$forums_current_version = '2.0.1.8';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -287,9 +287,9 @@ function forums_global_install() {
 }
 
 function forums_plug_pages() {
-	global $current_user;
+	global $current_user, $forums_enable_upgrades;
 	
-	if ( FORUM_DEMO_FOR_NON_SUPPORTER && function_exists('is_pro_site') && !is_pro_site()) {
+	if ( $forums_enable_upgrades && FORUM_DEMO_FOR_NON_SUPPORTER && function_exists('is_pro_site') && !is_pro_site()) {
 		add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_non_supporter_output');
 	} else {
 		add_menu_page( __( 'Forums', 'wpmudev_forums' ), __( 'Forums', 'wpmudev_forums' ), 'manage_options', 'wpmudev_forums', 'forums_manage_output');
@@ -917,7 +917,7 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 			} else {
 				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_two . '">';
 			}
-			$tmp_forum = forum_get_details($_POST['tid']);
+			$tmp_forum = forum_get_details($tmp_result['post_topic_ID']);
 			
 			$tmp_topic_title = $tmp_forum['topic_title'];
 			$tmp_topic_post_count = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = %d", $tmp_result['post_topic_ID']) );
@@ -1905,7 +1905,7 @@ function forums_manage_output() {
 				}
 				
 			}
-			if ($tmp_forums_count == 0){
+			if ($forums_enable_upgrades && $tmp_forums_count == 0){
 				if ( function_exists('is_pro_site') && !is_pro_site() && function_exists('psts_hide_ads') && !psts_hide_ads() ) {
 					global $psts, $blog_id;
 					$feature_message = __( "Upgrade your blog now in order to add forums, increase storage space, embed videos, and more.", 'wpmudev_forums' );
@@ -2398,14 +2398,13 @@ function forum_get_details($topic_id) {
 	} else {
 		$db_prefix = $wpdb->prefix;
 	}
-	
-	$forum = $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $_GET['topic']),  ARRAY_A);
-	
-	if ($forum) {
-		$forum['topic_title'] = stripslashes($forum['topic_title']);
-		$forum['topic_last_updated_stamp'] = stripslashes($forum['topic_last_updated_stamp']);
-		$forum['topic_last_author'] = stripslashes($forum['topic_last_author']);
-		$forum['topic_closed'] = stripslashes($forum['topic_closed']);
+	$forum_res = $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . $db_prefix . "forums_topics WHERE topic_ID = %d", $topic_id),  ARRAY_A);
+	$forum = array();
+	if ($forum_res) {
+		$forum['topic_title'] = stripslashes($forum_res['topic_title']);
+		$forum['topic_last_updated_stamp'] = stripslashes($forum_res['topic_last_updated_stamp']);
+		$forum['topic_last_author'] = stripslashes($forum_res['topic_last_author']);
+		$forum['topic_closed'] = stripslashes($forum_res['topic_closed']);
 	}
 	
 	return $forum;
