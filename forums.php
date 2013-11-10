@@ -774,7 +774,7 @@ function forums_output($content) {
 							echo '</script>';
 							exit();
 						} else {
-							$tmp_post_auhtor = $wpdb->get_var( $wpdb->prepare("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = %d AND post_ID = %d", $_GET['tid'], $_GET['pid']) );
+							$tmp_post_auhtor = $wpdb->get_var( $wpdb->prepare("SELECT post_author FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = %d AND post_ID = %d", $_POST['tid'], $_POST['pid']) );
 							if ($tmp_post_auhtor == $user_ID){
 								forums_output_edit_post_process($tmp_fid,(int)$_POST['pid'],(int)$_POST['tid']);
 								echo '<script type="text/javascript">';
