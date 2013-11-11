@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums/
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
 Author URI: http://premium.wpmudev.org
-Version: 2.0.1.8
+Version: 2.0.1.10
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
@@ -27,7 +27,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$forums_current_version = '2.0.1.8';
+$forums_current_version = '2.0.1.10';
 //------------------------------------------------------------------------//
 //---Config---------------------------------------------------------------//
 //------------------------------------------------------------------------//
@@ -714,17 +714,17 @@ function forums_output($content) {
 			} else if ($_action == 'delete_post_process'){
 				if ( isset($_POST['Cancel']) ) {
 					echo '<script type="text/javascript">';
-					echo 'window.location="?topic=' . (int)$_POST['tid'] . '&forum_page=' . (int)$_POST['forum_page'] . '#post-' . (int)$_POST['pid'] . '";';
+					echo 'window.location="' . add_query_arg( array( 'topic' => (int)$_POST['tid'], 'forum_page' => (int)$_POST['forum_page'] ), get_permalink() ) . '#post-' . (int)$_POST['pid'] . '";';
 					echo '</script>';
 				} else {
 					$tmp_errors = forums_output_delete_post_process($tmp_fid,(int)$_POST['pid'],(int)$_POST['tid']);
 					if ($tmp_errors > 0){
 						echo '<script type="text/javascript">';
-						echo 'window.location="?topic=' . (int)$_POST['tid'] . '&forum_page=' . (int)$_POST['forum_page'] . '&msg=' . urlencode( __('Error deleting post', 'wpmudev_forums' ) ) . '#post-' . (int)$_POST['pid'] . '";';
+						echo 'window.location="' . add_query_arg( array( 'topic' => (int)$_POST['tid'], 'forum_page' => (int)$_POST['forum_page'], 'msg' => urlencode( __('Error deleting post', 'wpmudev_forums' ) ) ), get_permalink() ) . '#post-' . (int)$_POST['pid'] . '";';
 						echo '</script>';
 					} else {
 						echo '<script type="text/javascript">';
-						echo 'window.location="?topic=' . (int)$_POST['tid'] . '&msg=' . urlencode( __( 'Post deleted', 'wpmudev_forums' ) ) . '";';
+						echo 'window.location="' . add_query_arg( array( 'topic' => (int)$_POST['tid'], 'msg' => urlencode( __( 'Post deleted', 'wpmudev_forums' ) ) ), get_permalink() ) . '";';
 						echo '</script>';
 					}
 				}
@@ -759,7 +759,7 @@ function forums_output($content) {
 			} else if ($_action == 'edit_post_process'){
 				if ( isset($_POST['Cancel']) ) {
 					echo '<script type="text/javascript">';
-					echo 'window.location="?topic=' . (int)$_POST['tid'] . '&forum_page=' . (int)$_POST['forum_page'] . '#post-' . (int)$_POST['pid'] . '";';
+					echo 'window.location="' . add_query_arg( array( 'topic' => (int)$_POST['tid'], 'forum_page' => (int)$_POST['forum_page'] ), get_permalink() ) . '#post-' . (int)$_POST['pid'] . '";';
 					echo '</script>';
 					exit();
 				} else {
@@ -770,7 +770,7 @@ function forums_output($content) {
 						if(current_user_can('manage_options')) {
 							forums_output_edit_post_process($tmp_fid,(int)$_POST['pid'],(int)$_POST['tid']);
 							echo '<script type="text/javascript">';
-							echo 'window.location="?topic=' . (int)$_POST['tid'] . '&forum_page=' . (int)$_POST['forum_page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
+							echo 'window.location="' . add_query_arg( array( 'topic' => (int)$_POST['tid'], 'forum_page' => (int)$_POST['forum_page'], 'msg' => urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) ), get_permalink() ) . '";';
 							echo '</script>';
 							exit();
 						} else {
@@ -778,7 +778,7 @@ function forums_output($content) {
 							if ($tmp_post_auhtor == $user_ID){
 								forums_output_edit_post_process($tmp_fid,(int)$_POST['pid'],(int)$_POST['tid']);
 								echo '<script type="text/javascript">';
-								echo 'window.location="?topic=' . (int)$_POST['tid'] . '&forum_page=' . (int)$_POST['forum_page'] . '&msg=' . urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) . '";';
+								echo 'window.location="' . add_query_arg( array( 'topic' => (int)$_POST['tid'], 'forum_page' => (int)$_POST['forum_page'], 'msg' => urlencode( __( 'Post updated...', 'wpmudev_forums' ) ) ), get_permalink() ) . '";';
 								echo '</script>';
 								exit();
 							} else {
@@ -800,7 +800,7 @@ function forums_output($content) {
 							$tmp_total_pages = forums_roundup($tmp_post_count / $forums_posts_per_page, 0);
 							forums_output_new_post_process($tmp_fid,(int)$_POST['tid']);
 							echo '<script type="text/javascript">';
-							echo 'window.location="?topic=' . (int)$_POST['tid'] . '&forum_page=' . $tmp_total_pages . '&msg=' . urlencode( __( 'Post added...', 'wpmudev_forums' ) ) . '";';
+							echo 'window.location="' . add_query_arg( array( 'topic' => (int)$_POST['tid'], 'forum_page' => $tmp_total_pages, 'msg' => urlencode( __( 'Post added...', 'wpmudev_forums' ) ) ), get_permalink() ) . '";';
 							echo '</script>';
 							exit();
 						}
@@ -837,13 +837,13 @@ function forums_output($content) {
 function forums_get_navigation( $post_id, $topic_id, $topic_closed ) {
 	$content = '<hr />';
 	$content .= '<center class="forum-navigation">';
-	$content .= '<a href="' . get_permalink($post_id) . '">' . __( 'Back to index', 'wpmudev_forums' ) . '</a> | ';
+	$content .= '<a href="' . get_permalink() . '">' . __( 'Back to index', 'wpmudev_forums' ) . '</a> | ';
 	if(current_user_can('manage_options')) {
-		$content .= '<a href="?action=delete_topic&tid=' . $topic_id . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
+		$content .= '<a href="' . add_query_arg( array('action' => 'delete_topic', 'tid' => $topic_id ), get_permalink() ) . '">' . __( 'Delete Topic', 'wpmudev_forums' ) . '</a> | ';
 		if ($topic_closed == 1){
-			$content .= '<a href="?topic=' . $topic_id . '&action=open_topic">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
+			$content .= '<a href="' . add_query_arg( array('action' => 'open_topic', 'topic' => $topic_id ), get_permalink() ) . '">' . __( 'Open Topic', 'wpmudev_forums' ) . '</a>';
 		} else {
-			$content .= '<a href="?topic=' . $topic_id . '&action=close_topic">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
+			$content .= '<a href="' . add_query_arg( array('action' => 'close_topic', 'topic' => $topic_id ), get_permalink() ) . '">' . __( 'Close Topic', 'wpmudev_forums' ) . '</a>';
 		}
 	}
 	$content .= '</center>';
@@ -925,9 +925,9 @@ function forums_output_search_results($tmp_fid,$tmp_query){
 			$content =  $content . '<td ' . $style . ' ><center>' . $tmp_counter . '.</center></td>';
 			$content =  $content . '<td ' . $style . ' ><p>';
 			if ($tmp_topic_post_count > $forums_posts_per_page){
-				$content =  $content . '<strong><a href="?topic=' . $tmp_result['post_topic_ID'] . '#post-' . $tmp_result['post_ID'] . '">' . $tmp_topic_title . '</a></strong><br />';
+				$content =  $content . '<strong><a href="' . add_query_arg( array( 'topic' => $tmp_result['post_topic_ID'] ), get_permalink() ) . '#post-' . $tmp_result['post_ID'] . '">' . $tmp_topic_title . '</a></strong><br />';
 			} else {
-				$content =  $content . '<strong><a href="?topic=' . $tmp_result['post_topic_ID'] . '#post-' . $tmp_result['post_ID'] . '">' . $tmp_topic_title . '</a></strong><br />';
+				$content =  $content . '<strong><a href="' . add_query_arg( array( 'topic' => $tmp_result['post_topic_ID'] ), get_permalink() ) . '#post-' . $tmp_result['post_ID'] . '">' . $tmp_topic_title . '</a></strong><br />';
 			}
 			$content =  $content . str_replace($tmp_query,'<strong>' . $tmp_query . '</strong>',forums_display_post_content($tmp_result['post_content']));
 			$content =  $content . '</p></td>';
@@ -964,7 +964,7 @@ function forums_output_search_form($tmp_fid){
 
 	if ($tmp_topic_count > 0){
 		$content = $content . '<p><center>';
-		$content = $content . '<form name="new_t" method="POST" action="?search=">';
+		$content = $content . '<form name="new_t" method="POST" action="' . add_query_arg( array( 'search' => '' ), get_permalink() ) . '">';
 		$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
 		$content = $content . '<input type="hidden" name="fid" value="' . $tmp_fid . '" />';
 		$content = $content . '<input type="hidden" name="query" value="' . esc_attr($tmp_query) . '" />';
@@ -1048,7 +1048,7 @@ function forums_output_new_post_separate($tmp_fid,$tmp_tid,$tmp_errors,$tmp_erro
 				$content = $content . '<p><center>' . __($tmp_error_msg) . '</center></p>';
 
 			}
-			$content = $content . '<form id="forum-topic-reply-form" name="new_topic" method="POST" action="?action=new_post_process">';
+			$content = $content . '<form id="forum-topic-reply-form" name="new_topic" method="POST" action="' . add_query_arg( array( 'action' => 'new_post_process' ), get_permalink() ) . '">';
 			$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
 			$content = $content . '<input type="hidden" name="fid" value="' . $tmp_fid . '" />';
 			$content = $content . '<input type="hidden" name="tid" value="' . $tmp_tid . '" />';
@@ -1095,7 +1095,7 @@ function forums_output_new_post($tmp_fid,$tmp_tid,$tmp_errors,$tmp_error_msg = '
 				$content = $content . '<p><center>' . $tmp_error_msg . '</center></p>';
 
 			}
-			$content = $content . '<form id="forum-topic-reply-form" name="new_topic" method="POST" action="?action=new_post_process">';
+			$content = $content . '<form id="forum-topic-reply-form" name="new_topic" method="POST" action="' . add_query_arg( array( 'action' => 'new_post_process' ), get_permalink() ) . '">';
 			$content = $content . '<input type="hidden" name="uid" value="' . (int)$user_ID . '" />';
 			$content = $content . '<input type="hidden" name="fid" value="' . (int)$tmp_fid . '" />';
 			$content = $content . '<input type="hidden" name="tid" value="' . (int)$tmp_tid . '" />';
@@ -1169,7 +1169,7 @@ function forums_output_edit_post($tmp_pid,$tmp_fid,$tmp_tid,$tmp_errors,$tmp_err
 		$content = $content . '<p><center>' . $tmp_error_msg . '</center></p>';
 
 	}
-	$content = $content . '<form name="edit_post" method="POST" action="?action=edit_post_process">';
+	$content = $content . '<form name="edit_post" method="POST" action="' . add_query_arg( array( 'action' => 'edit_post_process' ), get_permalink() ) . '">';
 	$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
 	if ($tmp_errors > 0){
 		$content = $content . '<input type="hidden" name="pid" value="' . (int)$_POST['pid'] . '" />';
@@ -1245,7 +1245,7 @@ function forums_output_delete_post($tmp_pid,$tmp_tid,$tmp_page) {
 		$content = $content . '<h3>' . __( 'Delete Post', 'wpmudev_forums' ) . '</h3>';
 		$content = $content . '<br />';
 		$content = $content . '<p>' . __( 'Are you sure you want to delete this post?', 'wpmudev_forums' ) . '</p>';
-		$content = $content . '<form name="delete_topic" method="POST" action="?action=delete_post_process">';
+		$content = $content . '<form name="delete_topic" method="POST" action="' . add_query_arg( array( 'action' => 'delete_post_process' ), get_permalink() ) . '">';
 		$content = $content . '<input type="hidden" name="uid" value="' . $user_ID . '" />';
 		$content = $content . '<input type="hidden" name="pid" value="' . $tmp_pid . '" />';
 		$content = $content . '<input type="hidden" name="tid" value="' . $tmp_tid . '" />';
@@ -1301,7 +1301,7 @@ function forums_output_delete_topic($tmp_fid,$tmp_tid) {
 		$content = $content . '<h3>' . __( 'Delete Topic', 'wpmudev_forums' ) . '</h3>';
 		$content = $content . '<br />';
 		$content = $content . '<p>' . __( 'Are you sure you want to delete this topic?', 'wpmudev_forums' ) . '</p>';
-		$content = $content . '<form name="delete_topic" method="POST" action="?action=delete_topic_process">';
+		$content = $content . '<form name="delete_topic" method="POST" action="' . add_query_arg( array( 'action' => 'delete_topic_process' ), get_permalink() ) . '">';
 		$content = $content . '<input type="hidden" name="uid" value="' . (int)$user_ID . '" />';
 		$content = $content . '<input type="hidden" name="fid" value="' . (int)$tmp_fid . '" />';
 		$content = $content . '<input type="hidden" name="tid" value="' . (int)$tmp_tid . '" />';
@@ -1343,7 +1343,7 @@ function forums_output_topic_nav($tmp_tid){
 		$content = $content . '<td width="25%" style="text-align:left"></td>';
 	} else {
 		$tmp_previus_page = $tmp_current_page - 1;
-		$content = $content . '<td width="25%" style="text-align:left"><a href="?topic=' . (int)$_GET['topic'] . '&forum_page=' . $tmp_previus_page . '">' . __(' &laquo; Previous') . '</a></td>';
+		$content = $content . '<td width="25%" style="text-align:left"><a href="'. add_query_arg( array( 'topic' => (int)$_GET['topic'], 'forum_page' => $tmp_previus_page ), get_permalink() ) . '">' . __(' &laquo; Previous') . '</a></td>';
 	}
 	$content = $content . '<td><center>' . sprintf( __( 'Showing %1s > %2s of %3s posts', 'wpmudev_forums' ), $tmp_showing_low, $tmp_showing_high, $tmp_post_count ) . '</center></td>';
 	if ($tmp_current_page == $tmp_total_pages){
@@ -1351,7 +1351,7 @@ function forums_output_topic_nav($tmp_tid){
 		$content = $content . '<td width="25%" style="text-align:right"></td>';
 	} else {
 		$tmp_next_page = $tmp_current_page + 1;
-		$content = $content . '<td width="25%" style="text-align:right"><a href="?topic=' . (int)$_GET['topic'] . '&forum_page=' . $tmp_next_page . '">' . __( 'Next  &raquo;', 'wpmudev_forums' ) . '</a></td>';
+		$content = $content . '<td width="25%" style="text-align:right"><a href="'. add_query_arg( array( 'topic' => (int)$_GET['topic'], 'forum_page' => $tmp_previus_page ), get_permalink() ) . '">' . __( 'Next  &raquo;', 'wpmudev_forums' ) . '</a></td>';
 	}
 	$content = $content . '</tr>';
 	$content = $content . '</table>';
@@ -1386,7 +1386,7 @@ function forums_output_forum_nav($tmp_fid){
 			$content = $content . '<td width="25%" style="text-align:left"></td>';
 		} else {
 			$tmp_previus_page = $tmp_current_page - 1;
-			$content = $content . '<td width="25%" style="text-align:left"><a href="?forum_page=' . $tmp_previus_page . '">&laquo; ' . __( 'Previous', 'wpmudev_forums' ) . '</a></td>';
+			$content = $content . '<td width="25%" style="text-align:left"><a href="'. add_query_arg( array( 'forum_page' => $tmp_previus_page ), get_permalink() ) . '">&laquo; ' . __( 'Previous', 'wpmudev_forums' ) . '</a></td>';
 		}
 		$content = $content . '<td ><center>' . sprintf( __( 'Showing %1s > %2s of %3s posts', 'wpmudev_forums' ), $tmp_showing_low, $tmp_showing_high, $tmp_topic_count ) . '</center></td>';
 		if ($tmp_current_page == $tmp_total_pages){
@@ -1394,7 +1394,7 @@ function forums_output_forum_nav($tmp_fid){
 			$content = $content . '<td width="25%" style="text-align:right"></td>';
 		} else {
 			$tmp_next_page = $tmp_current_page + 1;
-			$content = $content . '<td width="25%" style="text-align:right"><a href="?forum_page=' . $tmp_next_page . '">' . __( 'Next', 'wpmudev_forums' ) . ' &raquo;</a></td>';
+			$content = $content . '<td width="25%" style="text-align:right"><a href="'. add_query_arg( array( 'topic' => (int)$_GET['topic'], 'forum_page' => $tmp_next_page ), get_permalink() ) . '">' . __( 'Next', 'wpmudev_forums' ) . ' &raquo;</a></td>';
 		}
 		$content = $content . '</tr>';
 		$content = $content . '</table>';
@@ -1457,20 +1457,20 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 			}
 			$content =  $content . '<td ' . $style . ' width="80%" ><p style="padding-left:10px;">' . forums_display_post_content($tmp_post['post_content']) . '</li><p><hr /><div class="forum-post-meta" style="padding-left:10px;">';
 			$content =  $content . __( 'Posted: ', 'wpmudev_forums' ) . date(get_option('date_format', __("D, F jS Y g:i A", 'wpmudev_forums' )),$tmp_post['post_stamp']);
-			$content =  $content . ' <a href="?topic=' . $tmp_tid . '&forum_page=' . $tmp_current_page . '#post-' . (int)$tmp_post['post_ID'] . '">#</a> ';
+			$content =  $content . ' <a href="'. add_query_arg( array( 'topic' => $tmp_tid, 'forum_page' => $tmp_next_page ), get_permalink() ) . '#post-' . (int)$tmp_post['post_ID'] . '">#</a> ';
 			$tmp_now = time();
 			$tmp_then = $tmp_post['post_stamp'];
 			$tmp_ago = $tmp_now - $tmp_then;
 			if(current_user_can('manage_options')){
 				$tmp_post_count = $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM " . $db_prefix . "forums_posts WHERE post_topic_ID = %d", $tmp_tid) );
 				if ($tmp_post_count > 1){
-					$content =  $content . '<a href="?action=edit_post&forum_page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . (int)$tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>|<a href="?action=delete_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . (int)$tmp_post['post_ID'] . '">' . __( 'Delete', 'wpmudev_forums' ) . '</a>';
+					$content =  $content . '<a href="' . add_query_arg( array( 'action' => 'edit_post', 'forum_page' => $tmp_current_page, 'tid' => $tmp_tid, 'pid' => (int)$tmp_post['post_ID'] ), get_permalink() ) . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>|<a href="?action=delete_post&page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . (int)$tmp_post['post_ID'] . '">' . __( 'Delete', 'wpmudev_forums' ) . '</a>';
 				} else {
-					$content =  $content . '<a href="?action=edit_post&forum_page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . (int)$tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
+					$content =  $content . '<a href="' . add_query_arg( array( 'action' => 'edit_post', 'forum_page' => $tmp_current_page, 'tid' => $tmp_tid, 'pid' => (int)$tmp_post['post_ID'] ), get_permalink() ) . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
 				}
 			} else if ($tmp_ago < 1800){
 				if ($tmp_post['post_author'] == $user_ID){
-					$content =  $content . '<a href="?action=edit_post&forum_page=' . $tmp_current_page . '&tid=' . $tmp_tid . '&pid=' . (int)$tmp_post['post_ID'] . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
+					$content =  $content . '<a href="' . add_query_arg( array( 'action' => 'edit_post', 'forum_page' => $tmp_current_page, 'tid' => $tmp_tid, 'pid' => (int)$tmp_post['post_ID'] ), get_permalink() ) . '">' . __( 'Edit', 'wpmudev_forums' ) . '</a>';
 				}
 			}
 			$content =  $content . '</div></td>';
@@ -1579,7 +1579,7 @@ function forums_output_new_topic($tmp_fid, $tmp_errors,$tmp_error_msg = '') {
 			$content = $content . '<p><center>' . $tmp_error_msg . '</center></p>';
 
 		}
-		$content = $content . '<form name="new_topic" method="POST" action="?action=new_topic_process">';
+		$content = $content . '<form name="new_topic" method="POST" action="' . add_query_arg( array( 'action' => 'new_topic_process' ), get_permalink() ) . '">';
 		$content = $content . '<input type="hidden" name="uid" value="' . (int)$user_ID . '" />';
 		$content = $content . '<input type="hidden" name="fid" value="' . (int)$tmp_fid . '" />';
 		$content = $content . '<fieldset style="border:none;">';
@@ -1632,7 +1632,7 @@ function forums_output_forum($tmp_fid) {
 		} else {
 			$content = '<table ' . $style . ' width="100%" cellpadding="0" cellspacing="0">
 			<tr style="background-color:' . $tmp_forum_color_header . ';">
-				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . ' (<a href="?action=new_topic&fid='.$tmp_fid.'">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></th>
+				<th ' . $style . ' ><center>' . __( 'TOPICS', 'wpmudev_forums' ) . ' (<a href="' . add_query_arg( array( 'action' => 'new_topic', 'fid' => $tmp_fid ), get_permalink() ) . '">' . __( 'NEW', 'wpmudev_forums' ) . '</a>)</center></th>
 				<th ' . $style . ' ><center>' . __( 'POSTS', 'wpmudev_forums' ) . '</center></th>
 				<th ' . $style . ' ><center>' . __( 'LATEST POSTER', 'wpmudev_forums' ) . '</center></th>
 			</tr>';
@@ -1689,9 +1689,9 @@ function forums_output_topics($tmp_fid) {
 				$content =  $content . '<tr style="background-color:' . $tmp_forum_color_two . '">';
 			}
 			if ($tmp_topic['topic_closed'] == 1){
-				$content =  $content . '<td ' . $style . ' ><center><a href="?topic=' . (int)$tmp_topic['topic_ID'] . '">' . esc_html(stripslashes($tmp_topic['topic_title'])) . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</a></center></td>';
+				$content =  $content . '<td ' . $style . ' ><center><a href="'. add_query_arg( array( 'topic' => (int)$tmp_topic['topic_ID'] ), get_permalink() ) . '">' . esc_html(stripslashes($tmp_topic['topic_title'])) . ' (' . __( 'Closed', 'wpmudev_forums' ) . ')</a></center></td>';
 			} else {
-				$content =  $content . '<td ' . $style . ' ><center><a href="?topic=' . (int)$tmp_topic['topic_ID'] . '">' . esc_html(stripslashes($tmp_topic['topic_title'])) . '</a></center></td>';
+				$content =  $content . '<td ' . $style . ' ><center><a href="'. add_query_arg( array( 'topic' => (int)$tmp_topic['topic_ID'] ), get_permalink() ) . '">' . esc_html(stripslashes($tmp_topic['topic_title'])) . '</a></center></td>';
 			}
 			$content =  $content . '<td ' . $style . ' ><center>' . (int)$tmp_topic['topic_posts'] . '</center></td>';
 			$content =  $content . '<td ' . $style . ' ><center>' . esc_html(forums_author_display_name($tmp_topic['topic_last_author'])) . '</center></td>';
@@ -1709,7 +1709,7 @@ function forums_output_topics($tmp_fid) {
 		} else {
 			$content =  $content . '<table border="0" width="100%" cellpadding="0" cellspacing="0">';
 			$content =  $content . '<tr>';
-			$content =  $content . '<td><center>' . __( 'No topics to display...', 'wpmudev_forums' ) . '<a href="?action=new_topic&fid='.$tmp_fid.'">' . __( 'Click here to create a new topic.', 'wpmudev_forums' ) . '</a></center></td>';
+			$content =  $content . '<td><center>' . __( 'No topics to display...', 'wpmudev_forums' ) . '<a href="'.add_query_arg( array('action' => 'new_topic', 'fid' => $tmp_fid), get_permalink() ) .'">' . __( 'Click here to create a new topic.', 'wpmudev_forums' ) . '</a></center></td>';
 			$content =  $content . '</tr>';
 			$content =  $content . '</table>';
 		}
