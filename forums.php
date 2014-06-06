@@ -3,16 +3,18 @@
 Plugin Name: Forums
 Plugin URI: http://premium.wpmudev.org/project/forums/
 Description: Allows each blog to have their very own forums - embedded in any page or post.
-Author: S H Mohanjith (Incsub), Ulrich Sossou (Incsub), Andrew Billits (Incsub)
+Author: WPMU DEV
 Author URI: http://premium.wpmudev.org
 Version: 2.0.2.0
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
 
-/*
-Copyright 2007-2013 Incsub (http://incsub.com)
-
+/* 
+Copyright 2007-2014 Incsub (http://incsub.com)
+Author - S H Mohanjith
+Contributors - Ulrich Sossou, Andrew Billits
+  
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License (Version 2 - GPLv2) as published by
 the Free Software Foundation.
