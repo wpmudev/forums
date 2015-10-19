@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums/
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: WPMU DEV
 Author URI: http://premium.wpmudev.org
-Version: 2.0.2.0
+Version: 2.0.2.1
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
@@ -1459,7 +1459,7 @@ function forums_output_view_topic($tmp_tid,$tmp_fid){
 			}
 			$content =  $content . '<td ' . $style . ' width="80%" ><p style="padding-left:10px;">' . forums_display_post_content($tmp_post['post_content']) . '</li><p><hr /><div class="forum-post-meta" style="padding-left:10px;">';
 			$content =  $content . __( 'Posted: ', 'wpmudev_forums' ) . date(get_option('date_format', __("D, F jS Y g:i A", 'wpmudev_forums' )),$tmp_post['post_stamp']);
-			$content =  $content . ' <a href="'. add_query_arg( array( 'topic' => $tmp_tid, 'forum_page' => $tmp_next_page ), get_permalink() ) . '#post-' . (int)$tmp_post['post_ID'] . '">#</a> ';
+			$content =  $content . ' <a href="'. add_query_arg( array( 'topic' => $tmp_tid, 'forum_page' => $tmp_current_page ), get_permalink() ) . '#post-' . (int)$tmp_post['post_ID'] . '">#</a> ';
 			$tmp_now = time();
 			$tmp_then = $tmp_post['post_stamp'];
 			$tmp_ago = $tmp_now - $tmp_then;

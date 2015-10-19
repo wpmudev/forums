@@ -1,9 +1,15 @@
 Plugin Name: Forums
-Author: S H Mohanjith (Incsub), Andrew Billits (Incsub), Ulrich Sossou (Incsub)
+Author: WPMUDEV
+Lead developer: Maniu
+Contributors: S H Mohanjith, Andrew Billits, Ulrich Sossou
 
 Change Log:
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
+
+2.0.2.1 - 10/19/2015 - Maniu
+----------------------------------------------------------------------
+- Fixed: Possible notice
 
 2.0.2.0 - 11/11/2013 - S H Mohanjith
 ----------------------------------------------------------------------
