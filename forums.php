@@ -863,7 +863,11 @@ function forums_get_metadata( $last_updated, $last_author ) {
 }
 
 function forum_shortcode( $atts ) {
-	return forums_output("[forum{$atts[0]}]");
+	if(isset($atts[0]))
+		$id = $atts[0];
+	elseif(isset($atts['id']))
+		$id = ':'.$atts['id'];
+	return forums_output("[forum{$id}]");
 }
 add_shortcode( 'forum', 'forum_shortcode' );
 
@@ -1943,7 +1947,7 @@ function forums_manage_output() {
 				echo "<td valign='top'>" . esc_html(stripslashes($tmp_forum['forum_name'])) . "</td>";
 				echo "<td valign='top'>" . (int)$tmp_forum['forum_topics'] . "</td>";
 				echo "<td valign='top'>" . (int)$tmp_forum['forum_posts'] . "</td>";
-				$tmp_page_code = '[forum:' . (int)$tmp_forum['forum_ID'] . ']';
+				$tmp_page_code = '[forum id="' . (int)$tmp_forum['forum_ID'] . '"]';
 				echo "<td valign='top'>" . $tmp_page_code . "</td>";
 				echo "<td valign='top'><a href='admin.php?page=wpmudev_forums&action=edit_forum&fid=" . (int)$tmp_forum['forum_ID'] . "' rel='permalink' class='edit'>" . __( 'Edit', 'wpmudev_forums' ) . "</a></td>";
 				echo "<td valign='top'><a href='admin.php?page=wpmudev_forums&action=delete_forum&fid=" . (int)$tmp_forum['forum_ID'] . "' rel='permalink' class='delete'>" . __( 'Remove', 'wpmudev_forums' ) . "</a></td>";
