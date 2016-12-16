@@ -5,7 +5,7 @@ Plugin URI: http://premium.wpmudev.org/project/forums/
 Description: Allows each blog to have their very own forums - embedded in any page or post.
 Author: WPMU DEV
 Author URI: http://premium.wpmudev.org
-Version: 2.0.2.1
+Version: 2.0.2.4
 Text Domain: wpmudev_forums
 WDP ID: 26
 */
