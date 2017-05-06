@@ -1357,7 +1357,7 @@ function forums_output_topic_nav($tmp_tid){
 		$content = $content . '<td width="25%" style="text-align:right"></td>';
 	} else {
 		$tmp_next_page = $tmp_current_page + 1;
-		$content = $content . '<td width="25%" style="text-align:right"><a href="'. add_query_arg( array( 'topic' => (int)$_GET['topic'], 'forum_page' => $tmp_previus_page ), get_permalink() ) . '">' . __( 'Next  &raquo;', 'wpmudev_forums' ) . '</a></td>';
+		$content = $content . '<td width="25%" style="text-align:right"><a href="'. add_query_arg( array( 'topic' => (int)$_GET['topic'], 'forum_page' => $tmp_next_page ), get_permalink() ) . '">' . __( 'Next  &raquo;', 'wpmudev_forums' ) . '</a></td>';
 	}
 	$content = $content . '</tr>';
 	$content = $content . '</table>';
@@ -1400,7 +1400,7 @@ function forums_output_forum_nav($tmp_fid){
 			$content = $content . '<td width="25%" style="text-align:right"></td>';
 		} else {
 			$tmp_next_page = $tmp_current_page + 1;
-			$content = $content . '<td width="25%" style="text-align:right"><a href="'. add_query_arg( array( 'topic' => (int)$_GET['topic'], 'forum_page' => $tmp_next_page ), get_permalink() ) . '">' . __( 'Next', 'wpmudev_forums' ) . ' &raquo;</a></td>';
+			$content = $content . '<td width="25%" style="text-align:right"><a href="'. add_query_arg( array( 'forum_page' => $tmp_next_page ), get_permalink() ) . '">' . __( 'Next', 'wpmudev_forums' ) . ' &raquo;</a></td>';
 		}
 		$content = $content . '</tr>';
 		$content = $content . '</table>';
