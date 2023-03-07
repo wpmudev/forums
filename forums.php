@@ -1158,7 +1158,7 @@ function forums_output_edit_post_process($tmp_fid,$tmp_pid,$tmp_tid) {
 	$content = $content . forums_output_new_post($tmp_fid,$tmp_tid,0,'');
 }
 
-function forums_output_edit_post($tmp_pid,$tmp_fid,$tmp_tid,$tmp_errors,$tmp_error_msg = '',$tmp_page) {
+function forums_output_edit_post($tmp_pid,$tmp_fid,$tmp_tid,$tmp_errors,$tmp_error_msg = '',$tmp_page = '') {
 	global $wpdb, $user_ID;
 	if ( !empty($wpdb->base_prefix) ) {
 		$db_prefix = $wpdb->base_prefix;
